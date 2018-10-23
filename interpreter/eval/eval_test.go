@@ -62,7 +62,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testBooleanObject(t, evaluated, tt.expected)
+		testBooleanData(t, evaluated, tt.expected)
 	}
 }
 
@@ -81,7 +81,33 @@ func TestBangOperator(t *testing.T) {
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testBooleanObject(t, evaluated, tt.expected)
+		testBooleanData(t, evaluated, tt.expected)
+	}
+}
+
+func TestIfElseExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"if (true) { 10 }", 10},
+		{"if (false) { 10 }", nil},
+		{"if (1) { 10 }", 10},
+		{"if (1 < 2) { 10 }", 10},
+		{"if (1 > 2) { 10 }", nil},
+		{"if (1 > 2) { 10 } else { 20 }", 20},
+		{"if (1 < 2) { 10 } else { 20 }", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+
+		if ok {
+			testIntegerData(t, evaluated, int64(integer))
+		} else {
+			testNullData(t, evaluated)
+		}
 	}
 }
 
@@ -92,11 +118,11 @@ func testEval(input string) data.Data {
 	return Eval(program)
 }
 
-func testIntegerData(t *testing.T, obj data.Data, expected int64) bool {
-	result, ok := obj.(*data.Integer)
+func testIntegerData(t *testing.T, d data.Data, expected int64) bool {
+	result, ok := d.(*data.Integer)
 
 	if !ok {
-		t.Errorf("Expected Data to be Integer, got %T (%+v)", obj, obj)
+		t.Errorf("Expected Data to be Integer, got %T (%+v)", d, d)
 		return false
 	}
 
@@ -108,10 +134,10 @@ func testIntegerData(t *testing.T, obj data.Data, expected int64) bool {
 	return true
 }
 
-func testBooleanObject(t *testing.T, obj data.Data, expected bool) bool {
-	result, ok := obj.(*data.Boolean)
+func testBooleanData(t *testing.T, d data.Data, expected bool) bool {
+	result, ok := d.(*data.Boolean)
 	if !ok {
-		t.Errorf("Expected Data to be Boolean, got %T (%+v)", obj, obj)
+		t.Errorf("Expected Data to be Boolean, got %T (%+v)", d, d)
 		return false
 	}
 
@@ -120,5 +146,13 @@ func testBooleanObject(t *testing.T, obj data.Data, expected bool) bool {
 		return false
 	}
 
+	return true
+}
+
+func testNullData(t *testing.T, d data.Data) bool {
+	if d != NULL {
+		t.Errorf("Expected Data to be Null, got %T (%+v)", d, d)
+		return false
+	}
 	return true
 }
