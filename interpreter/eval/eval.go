@@ -13,6 +13,9 @@ func Eval(node ast.Node) data.Data {
 		return evalProgram(node)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.PrefixExpression:
+		right := Eval(node.Right)
+		return evalPrefixExpression(node.Operator, right)
 
 		// Evaluate expressions
 	case *ast.IntegerLiteral:
