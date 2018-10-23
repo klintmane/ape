@@ -11,8 +11,12 @@ func evalProgram(program *ast.Program) data.Data {
 	for _, statement := range program.Statements {
 		result = Eval(statement)
 
-		if ret, ok := result.(*data.Return); ok {
-			return ret.Value
+		switch result := result.(type) {
+		case *data.Return:
+			return result.Value
+
+		case *data.Error:
+			return result
 		}
 	}
 

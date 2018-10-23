@@ -9,11 +9,17 @@ func evalInfixExpression(
 	switch {
 	case left.Type() == data.INTEGER_TYPE && right.Type() == data.INTEGER_TYPE:
 		return evalIntegerInfixExpression(operator, left, right)
+
+	case left.Type() != right.Type():
+		return evalError("Type mismatch: %s %s %s", left.Type(), operator, right.Type())
+
 	case operator == "==":
 		return evalBoolean(left == right)
+
 	case operator == "!=":
 		return evalBoolean(left != right)
+
 	default:
-		return NULL
+		return evalError("Unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }

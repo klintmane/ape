@@ -12,21 +12,29 @@ func evalIntegerInfixExpression(
 	switch operator {
 	case "+":
 		return &data.Integer{Value: leftVal + rightVal}
+
 	case "-":
 		return &data.Integer{Value: leftVal - rightVal}
+
 	case "*":
 		return &data.Integer{Value: leftVal * rightVal}
+
 	case "/":
 		return &data.Integer{Value: leftVal / rightVal}
+
 	case "<":
 		return evalBoolean(leftVal < rightVal)
+
 	case ">":
 		return evalBoolean(leftVal > rightVal)
+
 	case "==":
 		return evalBoolean(leftVal == rightVal)
+
 	case "!=":
 		return evalBoolean(leftVal != rightVal)
+
 	default:
-		return NULL
+		return evalError("Unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }

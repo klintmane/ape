@@ -7,6 +7,7 @@ const (
 	BOOLEAN_TYPE = "BOOLEAN"
 	NULL_TYPE    = "NULL"
 	RETURN_TYPE  = "RETURN_TYPE"
+	ERROR_TYPE   = "ERROR_TYPE"
 )
 
 type DataType string

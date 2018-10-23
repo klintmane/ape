@@ -4,7 +4,7 @@ import "ape/interpreter/data"
 
 func evalMinusPrefixOperatorExpression(right data.Data) data.Data {
 	if right.Type() != data.INTEGER_TYPE {
-		return NULL
+		return evalError("Unknown operator: -%s", right.Type())
 	}
 
 	value := right.(*data.Integer).Value

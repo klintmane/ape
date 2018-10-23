@@ -11,6 +11,6 @@ func evalPrefixExpression(operator string, right data.Data) data.Data {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return NULL
+		return evalError("Unknown operator: %s%s", operator, right.Type())
 	}
 }

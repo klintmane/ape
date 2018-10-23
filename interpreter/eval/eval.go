@@ -17,6 +17,9 @@ func Eval(node ast.Node) data.Data {
 
 	case *ast.ReturnStatement:
 		data := Eval(node.ReturnValue)
+		if isError(data) {
+			return data
+		}
 		return evalReturn(data)
 
 	// Evaluate expressions
@@ -25,11 +28,22 @@ func Eval(node ast.Node) data.Data {
 
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
+		if isError(right) {
+			return right
+		}
 		return evalPrefixExpression(node.Operator, right)
 
 	case *ast.InfixExpression:
 		left := Eval(node.Left)
+		if isError(left) {
+			return left
+		}
+
 		right := Eval(node.Right)
+		if isError(right) {
+			return right
+		}
+
 		return evalInfixExpression(node.Operator, left, right)
 
 	case *ast.IfExpression:
@@ -42,5 +56,13 @@ func Eval(node ast.Node) data.Data {
 	case *ast.Boolean:
 		return evalBoolean(node.Value)
 	}
+
 	return nil
+}
+
+func isError(d data.Data) bool {
+	if d != nil {
+		return d.Type() == data.ERROR_TYPE
+	}
+	return false
 }
