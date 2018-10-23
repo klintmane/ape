@@ -17,11 +17,11 @@ func NewEnvironment() *Environment {
 }
 
 func (e *Environment) Get(name string) (Data, bool) {
-	obj, ok := e.store[name]
+	data, ok := e.store[name]
 	if !ok && e.outer != nil {
-		obj, ok = e.outer.Get(name)
+		data, ok = e.outer.Get(name)
 	}
-	return obj, ok
+	return data, ok
 }
 
 func (e *Environment) Set(name string, val Data) Data {

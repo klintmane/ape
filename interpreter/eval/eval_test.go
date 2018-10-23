@@ -189,13 +189,13 @@ func TestErrorHandling(t *testing.T) {
 		err, ok := evaluated.(*data.Error)
 
 		if !ok {
-			t.Errorf("no error object returned. got=%T(%+v)",
+			t.Errorf("Expected Error, got %T(%+v)",
 				evaluated, evaluated)
 			continue
 		}
 
 		if err.Message != tt.expectedMessage {
-			t.Errorf("wrong error message. expected=%q, got=%q",
+			t.Errorf("Expected Message to be %q, got %q",
 				tt.expectedMessage, err.Message)
 		}
 	}
