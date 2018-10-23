@@ -15,6 +15,10 @@ func Eval(node ast.Node) data.Data {
 	case *ast.BlockStatement:
 		return evalBlockStatement(node)
 
+	case *ast.ReturnStatement:
+		data := Eval(node.ReturnValue)
+		return evalReturn(data)
+
 	// Evaluate expressions
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
