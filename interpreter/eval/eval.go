@@ -65,6 +65,22 @@ func Eval(node ast.Node, env *data.Environment) data.Data {
 
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+
+	case *ast.FunctionLiteral:
+		return evalFunction(node, env)
+
+	case *ast.CallExpression:
+		fn := Eval(node.Function, env)
+		if isError(fn) {
+			return fn
+		}
+
+		args := evalCallArguments(node.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+
+		return evalCallResult(fn, args)
 	}
 
 	return nil
