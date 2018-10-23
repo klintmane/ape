@@ -5,17 +5,17 @@ import (
 	"ape/interpreter/data"
 )
 
-func evalIfExpression(ie *ast.IfExpression) data.Data {
-	condition := Eval(ie.Condition)
+func evalIfExpression(ie *ast.IfExpression, env *data.Environment) data.Data {
+	condition := Eval(ie.Condition, env)
 
 	if isError(condition) {
 		return condition
 	}
 
 	if isTruthy(condition) {
-		return Eval(ie.Consequent)
+		return Eval(ie.Consequent, env)
 	} else if ie.Alternate != nil {
-		return Eval(ie.Alternate)
+		return Eval(ie.Alternate, env)
 	} else {
 		return NULL
 	}

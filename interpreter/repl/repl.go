@@ -1,6 +1,7 @@
 package repl
 
 import (
+	"ape/interpreter/data"
 	"ape/interpreter/eval"
 	"ape/interpreter/lexer"
 	"ape/interpreter/parser"
@@ -11,6 +12,7 @@ import (
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := data.NewEnvironment()
 
 	for {
 		prompt()
@@ -30,7 +32,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := eval.Eval(program)
+		evaluated := eval.Eval(program, env)
 
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())

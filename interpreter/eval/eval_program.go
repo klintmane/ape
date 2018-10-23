@@ -5,11 +5,11 @@ import (
 	"ape/interpreter/data"
 )
 
-func evalProgram(program *ast.Program) data.Data {
+func evalProgram(program *ast.Program, env *data.Environment) data.Data {
 	var result data.Data
 
 	for _, statement := range program.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		switch result := result.(type) {
 		case *data.Return:

@@ -5,18 +5,25 @@ import (
 	"ape/interpreter/data"
 )
 
-func Eval(node ast.Node) data.Data {
+func Eval(node ast.Node, env *data.Environment) data.Data {
 	switch node := node.(type) {
 
 	// Evaluate statements
 	case *ast.Program:
-		return evalProgram(node)
+		return evalProgram(node, env)
+
+	case *ast.LetStatement:
+		data := Eval(node.Value, env)
+		if isError(data) {
+			return data
+		}
+		env.Set(node.Name.Value, data)
 
 	case *ast.BlockStatement:
-		return evalBlockStatement(node)
+		return evalBlockStatement(node, env)
 
 	case *ast.ReturnStatement:
-		data := Eval(node.ReturnValue)
+		data := Eval(node.ReturnValue, env)
 		if isError(data) {
 			return data
 		}
@@ -24,22 +31,22 @@ func Eval(node ast.Node) data.Data {
 
 	// Evaluate expressions
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
 		}
 
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
@@ -47,7 +54,7 @@ func Eval(node ast.Node) data.Data {
 		return evalInfixExpression(node.Operator, left, right)
 
 	case *ast.IfExpression:
-		return evalIfExpression(node)
+		return evalIfExpression(node, env)
 
 		// Evaluate expressions
 	case *ast.IntegerLiteral:
@@ -55,6 +62,9 @@ func Eval(node ast.Node) data.Data {
 
 	case *ast.Boolean:
 		return evalBoolean(node.Value)
+
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
 	}
 
 	return nil

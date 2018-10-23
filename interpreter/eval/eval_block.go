@@ -5,11 +5,11 @@ import (
 	"ape/interpreter/data"
 )
 
-func evalBlockStatement(block *ast.BlockStatement) data.Data {
+func evalBlockStatement(block *ast.BlockStatement, env *data.Environment) data.Data {
 	var result data.Data
 
 	for _, statement := range block.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		if result != nil {
 			rt := result.Type()
