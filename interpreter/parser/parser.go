@@ -43,6 +43,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.addPrefixParser(token.FUNCTION, p.parseFunctionLiteral)
 	p.addPrefixParser(token.STRING, p.parseStringLiteral)
 	p.addPrefixParser(token.BRACKETL, p.parseArrayLiteral)
+	p.addPrefixParser(token.BRACEL, p.parseHashLiteral)
 
 	// Create the infix parsers map
 	p.infixParsers = make(map[token.TokenType]infixParser)
