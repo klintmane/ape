@@ -1,6 +1,9 @@
 package eval
 
-import "ape/interpreter/data"
+import (
+	"ape/interpreter/data"
+	"fmt"
+)
 
 func _len(args ...data.Data) data.Data {
 	if len(args) != 1 {
@@ -104,6 +107,13 @@ func _push(args ...data.Data) data.Data {
 	return &data.Array{Elements: newElements}
 }
 
+func _print(args ...data.Data) data.Data {
+	for _, arg := range args {
+		fmt.Println(arg.Inspect())
+	}
+	return NULL
+}
+
 var builtins = map[string]*data.Builtin{
 	"len": &data.Builtin{
 		Fn: _len,
@@ -119,6 +129,9 @@ var builtins = map[string]*data.Builtin{
 	},
 	"push": &data.Builtin{
 		Fn: _push,
+	},
+	"print": &data.Builtin{
+		Fn: _print,
 	},
 }
 
