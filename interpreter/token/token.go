@@ -35,6 +35,8 @@ const (
 
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
+
+	STRING = "STRING"
 )
 
 type TokenType string

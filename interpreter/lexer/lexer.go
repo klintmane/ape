@@ -70,6 +70,10 @@ func (l *Lexer) NextToken() token.Token {
 	case ';':
 		t = token.New(token.SEMICOLON, l.char)
 
+	case '"':
+		t.Type = token.STRING
+		t.Literal = l.readString()
+
 	case 0:
 		t.Literal = ""
 		t.Type = token.EOF
@@ -120,6 +124,11 @@ func (l *Lexer) readIdentifier() string {
 
 func (l *Lexer) readNumber() string {
 	return l.readWhile(isDigit)
+}
+
+func (l *Lexer) readString() string {
+	l.advanceChar() // Skips the first double quotes
+	return l.readWhile(whileString)
 }
 
 func (l *Lexer) skipWhitespace() {
