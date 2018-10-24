@@ -30,6 +30,8 @@ const (
 	PARENR    = ")"
 	BRACEL    = "{"
 	BRACER    = "}"
+	BRACKETL  = "["
+	BRACKETR  = "]"
 	COMMA     = ","
 	SEMICOLON = ";"
 
