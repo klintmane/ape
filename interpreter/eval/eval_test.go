@@ -275,6 +275,38 @@ func TestClosures(t *testing.T) {
 	testIntegerData(t, testEval(input), 4)
 }
 
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{`len("")`, 0},
+		{`len("four")`, 4},
+		{`len("hello world")`, 11},
+		{`len(1)`, "argument to `len` not supported, got INTEGER"},
+		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerData(t, evaluated, int64(expected))
+
+		case string:
+			err, ok := evaluated.(*data.Error)
+			if !ok {
+				t.Errorf("Expected Data to be Error, got %T (%+v)", evaluated, evaluated)
+				continue
+			}
+
+			if err.Message != expected {
+				t.Errorf("Expected Error Message to be %q, got %q", expected, err.Message)
+			}
+		}
+	}
+}
 func TestStringLiteral(t *testing.T) {
 	input := `"Hello World!"`
 	evaluated := testEval(input)

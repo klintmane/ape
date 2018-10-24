@@ -5,13 +5,14 @@ import (
 	"ape/interpreter/data"
 )
 
-func evalIdentifier(
-	node *ast.Identifier,
-	env *data.Environment,
-) data.Data {
-	val, ok := env.Get(node.Value)
-	if !ok {
-		return evalError("Identifier not found: " + node.Value)
+func evalIdentifier(node *ast.Identifier, env *data.Environment) data.Data {
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
-	return val
+
+	if builtin, ok := evalBuiltin(node.Value); ok {
+		return builtin
+	}
+
+	return evalError("Identifier not found: " + node.Value)
 }

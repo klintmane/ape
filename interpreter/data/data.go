@@ -10,6 +10,7 @@ const (
 	ERROR_TYPE    = "ERROR"
 	FUNCTION_TYPE = "FUNCTION"
 	STRING_TYPE   = "STRING"
+	BUILTIN_TYPE  = "BUILTIN"
 )
 
 type DataType string

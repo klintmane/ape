@@ -21,16 +21,18 @@ func evalCallArguments(exps []ast.Expression, env *data.Environment) []data.Data
 }
 
 func evalCallResult(function data.Data, args []data.Data) data.Data {
-	fn, ok := function.(*data.Function)
+	switch fn := function.(type) {
+	case *data.Function:
+		closure := evalCallClosure(fn, args)
+		result := Eval(fn.Body, closure)
+		return evalCallReturn(result)
 
-	if !ok {
+	case *data.Builtin:
+		return fn.Fn(args...)
+
+	default:
 		return evalError("not a function: %s", fn.Type())
 	}
-
-	closure := evalCallClosure(fn, args)
-	result := Eval(fn.Body, closure)
-
-	return evalCallReturn(result)
 }
 
 func evalCallClosure(fn *data.Function, args []data.Data) *data.Environment {
