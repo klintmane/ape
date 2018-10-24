@@ -92,7 +92,20 @@ func Eval(node ast.Node, env *data.Environment) data.Data {
 			return elements[0]
 		}
 
-		return &data.Array{Elements: elements}
+		return evalArray(elements)
+
+	case *ast.IndexExpression:
+		left := Eval(node.Left, env)
+		if isError(left) {
+			return left
+		}
+
+		index := Eval(node.Index, env)
+		if isError(index) {
+			return index
+		}
+
+		return evalIndexExpression(left, index)
 	}
 
 	return nil
