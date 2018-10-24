@@ -78,12 +78,21 @@ func Eval(node ast.Node, env *data.Environment) data.Data {
 			return fn
 		}
 
-		args := evalCallArguments(node.Arguments, env)
+		args := evalExpressions(node.Arguments, env)
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
 
 		return evalCallResult(fn, args)
+
+	case *ast.ArrayLiteral:
+		elements := evalExpressions(node.Elements, env)
+
+		if len(elements) == 1 && isError(elements[0]) {
+			return elements[0]
+		}
+
+		return &data.Array{Elements: elements}
 	}
 
 	return nil

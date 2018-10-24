@@ -335,6 +335,25 @@ func TestStringConcatenation(t *testing.T) {
 	}
 }
 
+func TestArrayLiterals(t *testing.T) {
+	input := "[1, 2 * 2, 3 + 3]"
+	evaluated := testEval(input)
+	result, ok := evaluated.(*data.Array)
+
+	if !ok {
+		t.Fatalf("Expected Data to be Array, got %T (%+v)", evaluated, evaluated)
+	}
+
+	if len(result.Elements) != 3 {
+		t.Fatalf("Expected Array to have 3 elements, got %d",
+			len(result.Elements))
+	}
+
+	testIntegerData(t, result.Elements[0], 1)
+	testIntegerData(t, result.Elements[1], 4)
+	testIntegerData(t, result.Elements[2], 6)
+}
+
 func testEval(input string) data.Data {
 	l := lexer.New(input)
 	p := parser.New(l)

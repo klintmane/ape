@@ -11,6 +11,7 @@ const (
 	FUNCTION_TYPE = "FUNCTION"
 	STRING_TYPE   = "STRING"
 	BUILTIN_TYPE  = "BUILTIN"
+	ARRAY_TYPE    = "ARRAY"
 )
 
 type DataType string

@@ -42,6 +42,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.addPrefixParser(token.IF, p.parseIfExpression)
 	p.addPrefixParser(token.FUNCTION, p.parseFunctionLiteral)
 	p.addPrefixParser(token.STRING, p.parseStringLiteral)
+	p.addPrefixParser(token.BRACKETL, p.parseArrayLiteral)
 
 	// Create the infix parsers map
 	p.infixParsers = make(map[token.TokenType]infixParser)
@@ -56,6 +57,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.addInfixParser(token.LT, p.parseInfixExpression)
 	p.addInfixParser(token.GT, p.parseInfixExpression)
 	p.addInfixParser(token.PARENL, p.parseCallExpression)
+	p.addInfixParser(token.BRACKETL, p.parseIndexExpression)
 
 	// Reads twice so current and next are not nil
 	p.advance()

@@ -38,3 +38,26 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	}
 	return stmt
 }
+
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	list := []ast.Expression{}
+	if p.isNext(end) {
+		p.advance()
+		return list
+	}
+
+	p.advance()
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.isNext(token.COMMA) {
+		p.advance()
+		p.advance()
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.advanceIfNext(end) {
+		return nil
+	}
+
+	return list
+}
