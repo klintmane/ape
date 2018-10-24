@@ -271,6 +271,20 @@ func TestClosures(t *testing.T) {
 	testIntegerData(t, testEval(input), 4)
 }
 
+func TestStringLiteral(t *testing.T) {
+	input := `"Hello World!"`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*data.String)
+
+	if !ok {
+		t.Fatalf("Expected Data to be String, got %T (%+v)", evaluated, evaluated)
+	}
+
+	if str.Value != "Hello World!" {
+		t.Errorf("Expected String to be 'Hello World!', got %q", str.Value)
+	}
+}
+
 func testEval(input string) data.Data {
 	l := lexer.New(input)
 	p := parser.New(l)

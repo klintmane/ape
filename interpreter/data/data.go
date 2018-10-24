@@ -9,6 +9,7 @@ const (
 	RETURN_TYPE   = "RETURN_TYPE"
 	ERROR_TYPE    = "ERROR_TYPE"
 	FUNCTION_TYPE = "FUNCTION_TYPE"
+	STRING_TYPE   = "STRING_TYPE"
 )
 
 type DataType string

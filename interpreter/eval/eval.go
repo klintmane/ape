@@ -60,6 +60,9 @@ func Eval(node ast.Node, env *data.Environment) data.Data {
 	case *ast.IntegerLiteral:
 		return evalInteger(node.Value)
 
+	case *ast.StringLiteral:
+		return evalString(node.Value)
+
 	case *ast.Boolean:
 		return evalBoolean(node.Value)
 
