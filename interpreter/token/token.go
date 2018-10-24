@@ -33,6 +33,7 @@ const (
 	BRACKETL  = "["
 	BRACKETR  = "]"
 	COMMA     = ","
+	COLON     = ":"
 	SEMICOLON = ";"
 
 	ILLEGAL = "ILLEGAL"
