@@ -94,6 +94,9 @@ func Eval(node ast.Node, env *data.Environment) data.Data {
 
 		return evalArray(elements)
 
+	case *ast.HashLiteral:
+		return evalHashLiteral(node, env)
+
 	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {

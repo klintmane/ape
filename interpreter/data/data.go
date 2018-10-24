@@ -12,6 +12,7 @@ const (
 	STRING_TYPE   = "STRING"
 	BUILTIN_TYPE  = "BUILTIN"
 	ARRAY_TYPE    = "ARRAY"
+	HASH_TYPE     = "HASH"
 )
 
 type DataType string
