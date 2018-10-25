@@ -84,7 +84,7 @@ twice(increment, 5); // => 7
 
 ## Status
 
-Currently the [lexer](./src/lexer/lexer.go), [ast](./src/ast/ast.go), [parser](./src/parser/parser.go) and an [interpreter](./src/interpreter/eval/eval.go) are implemented. A full-fledged compiler is currently in the works.
+Currently the [lexer](./src/lexer), [ast](./src/ast), [parser](./src/parser) and an [interpreter](./src/interpreter) are implemented. A full-fledged [compiler](./src/compiler) is currently in the works.
 
 ## Editor Support
 
