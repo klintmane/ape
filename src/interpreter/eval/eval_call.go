@@ -1,7 +1,7 @@
 package eval
 
 import (
-	"ape/src/interpreter/data"
+	"ape/src/data"
 )
 
 func evalCallResult(function data.Data, args []data.Data) data.Data {

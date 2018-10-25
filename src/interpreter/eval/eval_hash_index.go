@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/interpreter/data"
+import "ape/src/data"
 
 func evalHashIndexExpression(hash, index data.Data) data.Data {
 	hashData := hash.(*data.Hash)

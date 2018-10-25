@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/interpreter/data"
+import "ape/src/data"
 
 func evalStringInfixExpression(operator string, left, right data.Data) data.Data {
 	if operator != "+" {

@@ -2,7 +2,7 @@ package eval
 
 import (
 	"ape/src/ast"
-	"ape/src/interpreter/data"
+	"ape/src/data"
 )
 
 func evalExpressions(exps []ast.Expression, env *data.Environment) []data.Data {

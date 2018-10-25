@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/interpreter/data"
+import "ape/src/data"
 
 func evalMinusPrefixOperatorExpression(right data.Data) data.Data {
 	if right.Type() != data.INTEGER_TYPE {

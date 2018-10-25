@@ -2,7 +2,7 @@ package eval
 
 import (
 	"ape/src/ast"
-	"ape/src/interpreter/data"
+	"ape/src/data"
 )
 
 func evalFunction(node *ast.FunctionLiteral, env *data.Environment) *data.Function {

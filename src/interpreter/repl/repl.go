@@ -1,7 +1,7 @@
 package repl
 
 import (
-	"ape/src/interpreter/data"
+	"ape/src/data"
 	"ape/src/interpreter/eval"
 	"ape/src/lexer"
 	"ape/src/parser"

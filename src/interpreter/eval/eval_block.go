@@ -2,7 +2,7 @@ package eval
 
 import (
 	"ape/src/ast"
-	"ape/src/interpreter/data"
+	"ape/src/data"
 )
 
 func evalBlockStatement(block *ast.BlockStatement, env *data.Environment) data.Data {

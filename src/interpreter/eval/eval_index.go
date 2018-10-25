@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/interpreter/data"
+import "ape/src/data"
 
 func evalIndexExpression(left, index data.Data) data.Data {
 	switch {

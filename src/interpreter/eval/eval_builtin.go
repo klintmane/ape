@@ -1,7 +1,7 @@
 package eval
 
 import (
-	"ape/src/interpreter/data"
+	"ape/src/data"
 	"fmt"
 )
 
