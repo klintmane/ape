@@ -5,5 +5,5 @@ type Opcode byte
 
 // the available opcode values
 const (
-	SetConstant Opcode = iota
+	OpConstant Opcode = iota
 )
