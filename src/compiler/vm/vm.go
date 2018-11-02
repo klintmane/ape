@@ -63,6 +63,18 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case operation.Bang:
+			err := vm.executeBangOp()
+			if err != nil {
+				return err
+			}
+
+		case operation.Minus:
+			err := vm.executeMinusOp()
+			if err != nil {
+				return err
+			}
+
 		case operation.Add, operation.Sub, operation.Mul, operation.Div:
 			err := vm.executeBinaryOp(op)
 			if err != nil {

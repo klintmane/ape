@@ -25,6 +25,9 @@ var operations = map[Opcode]*Operation{
 	Equal:       {"Equal", []int{}},
 	NotEqual:    {"NotEqual", []int{}},
 	GreaterThan: {"GreaterThan", []int{}},
+
+	Minus: {"Minus", []int{}},
+	Bang:  {"Bang", []int{}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation

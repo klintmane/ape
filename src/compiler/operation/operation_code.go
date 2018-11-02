@@ -20,4 +20,7 @@ const (
 	Equal
 	NotEqual
 	GreaterThan
+
+	Minus
+	Bang
 )
