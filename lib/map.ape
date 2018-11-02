@@ -1,0 +1,3 @@
+let map = fn(arr, f) {
+  reduce(arr, f, []);
+};
