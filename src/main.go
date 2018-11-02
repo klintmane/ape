@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ape/src/interpreter/repl"
+	"ape/src/compiler/repl"
 	"fmt"
 	"os"
 	"os/user"
