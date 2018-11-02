@@ -47,9 +47,9 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		popped := machine.Popped()
+		result := machine.Result()
 
-		io.WriteString(out, popped.Inspect())
+		io.WriteString(out, result.Inspect())
 		io.WriteString(out, "\n")
 	}
 }

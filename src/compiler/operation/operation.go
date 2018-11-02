@@ -10,9 +10,12 @@ type Operation struct {
 
 // maps the Opcodes to the corresponding Operations
 var operations = map[Opcode]*Operation{
+	Pop:      {"Pop", []int{}},
 	Constant: {"Constant", []int{2}},
 	Add:      {"Add", []int{}},
-	Pop:      {"Pop", []int{}},
+	Sub:      {"Sub", []int{}},
+	Mul:      {"Mul", []int{}},
+	Div:      {"Div", []int{}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation

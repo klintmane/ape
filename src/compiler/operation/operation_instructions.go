@@ -64,6 +64,7 @@ func ReadOperands(operation *Operation, ins Instruction) ([]int, int) {
 	return operands, position
 }
 
+// ReadUint16 returns the uint16 representation of an instruction
 func ReadUint16(ins Instruction) uint16 {
 	return binary.BigEndian.Uint16(ins)
 }

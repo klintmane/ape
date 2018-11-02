@@ -29,30 +29,27 @@ func (vm *VM) Result() data.Data {
 
 // Run executes every instruction given to the VM on creation
 func (vm *VM) Run() error {
-	for ip := 0; ip < len(vm.instructions); ip++ {
-		op := operation.Opcode(vm.instructions[ip])
+	for pointer := 0; pointer < len(vm.instructions); pointer++ {
+		op := operation.Opcode(vm.instructions[pointer])
 
 		switch op {
 		case operation.Pop:
 			vm.stack.pop()
 
 		case operation.Constant:
-			constIndex := operation.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
+			constIndex := operation.ReadUint16(vm.instructions[pointer+1:])
+			pointer += 2
+
 			err := vm.stack.push(vm.constants[constIndex])
 			if err != nil {
 				return err
 			}
 
-		case operation.Add:
-			right := vm.stack.pop()
-			left := vm.stack.pop()
-
-			leftValue := left.(*data.Integer).Value
-			rightValue := right.(*data.Integer).Value
-
-			result := leftValue + rightValue
-			vm.stack.push(&data.Integer{Value: result})
+		case operation.Add, operation.Sub, operation.Mul, operation.Div:
+			err := vm.executeBinaryOp(op)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

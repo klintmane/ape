@@ -5,7 +5,10 @@ type Opcode byte
 
 // the available opcode values
 const (
-	Constant Opcode = iota
+	Pop Opcode = iota
+	Constant
 	Add
-	Pop
+	Sub
+	Mul
+	Div
 )
