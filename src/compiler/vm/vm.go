@@ -68,6 +68,12 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.Equal, operation.NotEqual, operation.GreaterThan:
+			err := vm.executeComparison(op)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

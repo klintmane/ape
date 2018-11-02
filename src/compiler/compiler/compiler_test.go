@@ -90,6 +90,66 @@ func TestBooleanExpressions(t *testing.T) {
 				operation.NewInstruction(operation.Pop),
 			},
 		},
+		{
+			input:             "1 > 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.GreaterThan),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "1 < 2",
+			expectedConstants: []interface{}{2, 1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.GreaterThan),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "1 == 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Equal),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "1 != 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.NotEqual),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "true == false",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.True),
+				operation.NewInstruction(operation.False),
+				operation.NewInstruction(operation.Equal),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "true != false",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.True),
+				operation.NewInstruction(operation.False),
+				operation.NewInstruction(operation.NotEqual),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }

@@ -46,6 +46,24 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(operation.Pop)
 
 	case *ast.InfixExpression:
+		// Convert LessThan operations to GreaterThan ones
+		if node.Operator == "<" {
+
+			// First compile the right node, then the left node, unlike other infixes
+			err := c.Compile(node.Right)
+			if err != nil {
+				return err
+			}
+
+			err = c.Compile(node.Left)
+			if err != nil {
+				return err
+			}
+
+			c.emit(operation.GreaterThan)
+			return nil
+		}
+
 		err := c.Compile(node.Left)
 		if err != nil {
 			return err
@@ -65,6 +83,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(operation.Mul)
 		case "/":
 			c.emit(operation.Div)
+		case ">":
+			c.emit(operation.GreaterThan)
+		case "==":
+			c.emit(operation.Equal)
+		case "!=":
+			c.emit(operation.NotEqual)
 		default:
 			return fmt.Errorf("unknown operator %s", node.Operator)
 		}

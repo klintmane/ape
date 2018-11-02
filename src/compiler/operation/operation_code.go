@@ -16,4 +16,8 @@ const (
 
 	True
 	False
+
+	Equal
+	NotEqual
+	GreaterThan
 )
