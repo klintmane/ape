@@ -40,8 +40,13 @@ func (s *Stack) push(item data.Data) error {
 
 // pop takes an item off the stack
 func (s *Stack) pop() data.Data {
-	item := s.items[s.pointer-1]
+	item := s.top()
 	s.pointer--
 
 	return item
+}
+
+// popped returns the last popped item (like top but uses the pointer as an index)
+func (s *Stack) popped() data.Data {
+	return s.items[s.pointer]
 }

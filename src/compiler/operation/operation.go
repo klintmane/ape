@@ -12,6 +12,7 @@ type Operation struct {
 var operations = map[Opcode]*Operation{
 	Constant: {"Constant", []int{2}},
 	Add:      {"Add", []int{}},
+	Pop:      {"Pop", []int{}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation

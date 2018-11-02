@@ -25,6 +25,17 @@ func TestIntegerArithmetic(t *testing.T) {
 				operation.NewInstruction(operation.Constant, 0),
 				operation.NewInstruction(operation.Constant, 1),
 				operation.NewInstruction(operation.Add),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "1; 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Pop),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Pop),
 			},
 		},
 	}

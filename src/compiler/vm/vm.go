@@ -6,12 +6,14 @@ import (
 	"ape/src/data"
 )
 
+// VM contains the definition of the VM
 type VM struct {
 	constants    []data.Data
 	instructions operation.Instruction
 	stack        *Stack
 }
 
+// New creates a new VM from the given Bytecode
 func New(bytecode *compiler.Bytecode) *VM {
 	return &VM{
 		instructions: bytecode.Instructions,
@@ -20,15 +22,19 @@ func New(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
-func (vm *VM) Top() data.Data {
-	return vm.stack.top()
+// Result returns the value of the last popped element from the stack (last evaluated expression)
+func (vm *VM) Result() data.Data {
+	return vm.stack.popped()
 }
 
+// Run executes every instruction given to the VM on creation
 func (vm *VM) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
 		op := operation.Opcode(vm.instructions[ip])
 
 		switch op {
+		case operation.Pop:
+			vm.stack.pop()
 
 		case operation.Constant:
 			constIndex := operation.ReadUint16(vm.instructions[ip+1:])

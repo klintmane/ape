@@ -7,4 +7,5 @@ type Opcode byte
 const (
 	Constant Opcode = iota
 	Add
+	Pop
 )
