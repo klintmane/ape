@@ -6,6 +6,12 @@ import (
 	"ape/src/data"
 )
 
+// Global references, so a new object does not get allocated for each evaluation
+var (
+	TRUE  = &data.Boolean{Value: true}
+	FALSE = &data.Boolean{Value: false}
+)
+
 // VM contains the definition of the VM
 type VM struct {
 	constants    []data.Data
@@ -41,6 +47,18 @@ func (vm *VM) Run() error {
 			pointer += 2
 
 			err := vm.stack.push(vm.constants[constIndex])
+			if err != nil {
+				return err
+			}
+
+		case operation.True:
+			err := vm.stack.push(TRUE)
+			if err != nil {
+				return err
+			}
+
+		case operation.False:
+			err := vm.stack.push(FALSE)
 			if err != nil {
 				return err
 			}

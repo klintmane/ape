@@ -6,9 +6,14 @@ type Opcode byte
 // the available opcode values
 const (
 	Pop Opcode = iota
+
 	Constant
+
 	Add
 	Sub
 	Mul
 	Div
+
+	True
+	False
 )
