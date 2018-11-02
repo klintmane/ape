@@ -36,7 +36,7 @@ type vmTestCase struct {
 	expected interface{}
 }
 
-func runVmTests(t *testing.T, tests []vmTestCase) {
+func runVMTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 	for _, tt := range tests {
 		program := parse(tt.input)
@@ -84,5 +84,5 @@ func TestIntegerArithmetic(t *testing.T) {
 		{"1 + 2", 3},
 	}
 
-	runVmTests(t, tests)
+	runVMTests(t, tests)
 }
