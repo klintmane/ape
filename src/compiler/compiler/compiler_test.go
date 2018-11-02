@@ -22,8 +22,9 @@ func TestIntegerArithmetic(t *testing.T) {
 			input:             "1 + 2",
 			expectedConstants: []interface{}{1, 2},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.OpConstant, 0),
-				operation.NewInstruction(operation.OpConstant, 1),
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Add),
 			},
 		},
 	}

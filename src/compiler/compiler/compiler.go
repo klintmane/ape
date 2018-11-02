@@ -4,6 +4,7 @@ import (
 	"ape/src/ast"
 	"ape/src/compiler/operation"
 	"ape/src/data"
+	"fmt"
 )
 
 // Bytecode contains the instructions and constants the compiler generated and evaluated
@@ -54,9 +55,16 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
+		switch node.Operator {
+		case "+":
+			c.emit(operation.Add)
+		default:
+			return fmt.Errorf("unknown operator %s", node.Operator)
+		}
+
 	case *ast.IntegerLiteral:
 		integer := &data.Integer{Value: node.Value}
-		c.emit(operation.OpConstant, c.addConstant(integer))
+		c.emit(operation.Constant, c.addConstant(integer))
 	}
 	return nil
 }
