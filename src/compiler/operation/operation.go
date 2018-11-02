@@ -10,16 +10,17 @@ type Operation struct {
 
 // maps the Opcodes to the corresponding Operations
 var operations = map[Opcode]*Operation{
-	OpConstant: {"OpConstant", []int{2}},
+	Constant: {"Constant", []int{2}},
+	Add:      {"Add", []int{}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation
 func Lookup(value byte) (*Operation, error) {
 	opcode := Opcode(value)
-	def, ok := operations[opcode]
+	operation, ok := operations[opcode]
 
 	if !ok {
 		return nil, fmt.Errorf("Undefined Opcode: %d", opcode)
 	}
-	return def, nil
+	return operation, nil
 }

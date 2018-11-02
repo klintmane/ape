@@ -57,9 +57,13 @@ func ReadOperands(operation *Operation, ins Instruction) ([]int, int) {
 	for i, size := range operation.OperandSizes {
 		switch size {
 		case 2:
-			operands[i] = int(binary.BigEndian.Uint16(ins[position:]))
+			operands[i] = int(ReadUint16(ins[position:]))
 		}
 		position += size
 	}
 	return operands, position
+}
+
+func ReadUint16(ins Instruction) uint16 {
+	return binary.BigEndian.Uint16(ins)
 }

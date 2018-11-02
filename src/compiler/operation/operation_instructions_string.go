@@ -32,6 +32,8 @@ func (ins Instruction) fmtInstruction(operation *Operation, operands []int) stri
 	}
 
 	switch operandCount {
+	case 0:
+		return operation.Name
 	case 1:
 		return fmt.Sprintf("%s %d", operation.Name, operands[0])
 	}

@@ -5,5 +5,6 @@ type Opcode byte
 
 // the available opcode values
 const (
-	OpConstant Opcode = iota
+	Constant Opcode = iota
+	Add
 )

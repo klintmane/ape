@@ -3,13 +3,14 @@ package operation
 import "testing"
 
 // Tests that Operations are correctly converted into Instruction bytes
-func TestInstruction(t *testing.T) {
+func TestNewInstruction(t *testing.T) {
 	tests := []struct {
 		opcode   Opcode
 		operands []int
 		expected []byte
 	}{
-		{OpConstant, []int{65534}, []byte{byte(OpConstant), 255, 254}},
+		{Constant, []int{65534}, []byte{byte(Constant), 255, 254}},
+		{Add, []int{}, []byte{byte(Add)}},
 	}
 
 	for _, test := range tests {
@@ -30,24 +31,24 @@ func TestInstruction(t *testing.T) {
 // Tests that Instruction correctly implement a String method and are correctly printed
 func TestInstructionString(t *testing.T) {
 	instructions := []Instruction{
-		NewInstruction(OpConstant, 1),
-		NewInstruction(OpConstant, 2),
-		NewInstruction(OpConstant, 65535),
+		NewInstruction(Add),
+		NewInstruction(Constant, 2),
+		NewInstruction(Constant, 65535),
 	}
-	expected := `0000 OpConstant 1
-0003 OpConstant 2
-0006 OpConstant 65535
+	expected := `0000 Add
+0001 Constant 2
+0004 Constant 65535
 `
 
-	concatted := Instruction{}
+	result := Instruction{}
 
 	for _, ins := range instructions {
-		concatted = append(concatted, ins...)
+		result = append(result, ins...)
 	}
 
-	if concatted.String() != expected {
+	if result.String() != expected {
 		t.Errorf("instructions wrongly formatted.\nwant=%q\ngot=%q",
-			expected, concatted.String())
+			expected, result.String())
 	}
 }
 
@@ -57,7 +58,7 @@ func TestReadOperands(t *testing.T) {
 		operands  []int
 		bytesRead int
 	}{
-		{OpConstant, []int{65535}, 2},
+		{Constant, []int{65535}, 2},
 	}
 
 	for _, tt := range tests {
