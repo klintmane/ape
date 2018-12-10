@@ -86,7 +86,29 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.Jump:
+			pos := int(operation.ReadUint16(vm.instructions[pointer+1:]))
+			pointer = pos - 1
+
+		case operation.JumpNotTruthy:
+			pos := int(operation.ReadUint16(vm.instructions[pointer+1:]))
+			pointer += 2
+			condition := vm.stack.pop()
+			if !isTruthy(condition) {
+				pointer = pos - 1
+			}
+
 		}
 	}
 	return nil
+}
+
+func isTruthy(d data.Data) bool {
+	switch d := d.(type) {
+	case *data.Boolean:
+		return d.Value
+	default:
+		return true
+	}
 }
