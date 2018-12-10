@@ -13,10 +13,18 @@ type Bytecode struct {
 	Constants    []data.Data
 }
 
+// Emitted represents an emitted instruction
+type Emitted struct {
+	Opcode   operation.Opcode
+	Position int
+}
+
 // Compiler contains the instructions and constants which will then be turned into bytecode
 type Compiler struct {
 	instructions operation.Instruction
 	constants    []data.Data
+	emitted      Emitted // The last emitted instruction
+	prevEmitted  Emitted // The emitted instruction before that
 }
 
 // New creates a new compiler
@@ -24,6 +32,8 @@ func New() *Compiler {
 	return &Compiler{
 		instructions: operation.Instruction{},
 		constants:    []data.Data{},
+		emitted:      Emitted{},
+		prevEmitted:  Emitted{},
 	}
 }
 
@@ -118,6 +128,54 @@ func (c *Compiler) Compile(node ast.Node) error {
 		} else {
 			c.emit(operation.False)
 		}
+
+	case *ast.IfExpression:
+		err := c.Compile(node.Condition)
+		if err != nil {
+			return err
+		}
+
+		// We do not know the position at this moment, so we'll emit a temporary instruction
+		tempIns := c.emit(operation.JumpNotTruthy, 9999)
+		err = c.Compile(node.Consequent)
+		if err != nil {
+			return err
+		}
+
+		// Prevent the popping of the result, to allow assigning to a variable
+		if c.popEmitted() {
+			c.preventPop()
+		}
+
+		// If no else statement, replace the jump position with the correct one
+		if node.Alternate == nil {
+			finalPos := len(c.instructions)
+			c.changeOperand(tempIns, finalPos)
+		} else {
+			// Emit an `OpJump` with a bogus value
+			jumpPos := c.emit(operation.Jump, 9999)
+
+			finalPos := len(c.instructions)
+			c.changeOperand(tempIns, finalPos)
+
+			err := c.Compile(node.Alternate)
+			if err != nil {
+				return err
+			}
+			if c.popEmitted() {
+				c.preventPop()
+			}
+			alternatePos := len(c.instructions)
+			c.changeOperand(jumpPos, alternatePos)
+		}
+
+	case *ast.BlockStatement:
+		for _, s := range node.Statements {
+			err := c.Compile(s)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -138,12 +196,43 @@ func (c *Compiler) addConstant(d data.Data) int {
 
 // Adds an instruction to the instruction list and returns its index
 func (c *Compiler) addInstruction(ins []byte) int {
+	pos := len(c.instructions)
 	c.instructions = append(c.instructions, ins...)
-	return len(c.instructions) - 1
+	return pos
 }
 
 // Generates a new instruction, adds it to the instruction list and returns the position
 func (c *Compiler) emit(op operation.Opcode, operands ...int) int {
 	ins := operation.NewInstruction(op, operands...)
-	return c.addInstruction(ins)
+	pos := c.addInstruction(ins)
+	c.setEmitted(op, pos)
+	return pos
+}
+
+// Updates the emitted and prevEmitted values
+func (c *Compiler) setEmitted(op operation.Opcode, pos int) {
+	c.prevEmitted = c.emitted
+	c.emitted = Emitted{Opcode: op, Position: pos}
+}
+
+// Checks if the last emitted instruction is a pop instruction
+func (c *Compiler) popEmitted() bool {
+	return c.emitted.Opcode == operation.Pop
+}
+
+// Prevents a pop instruction from taking place by replacing it with the previous instruction
+func (c *Compiler) preventPop() {
+	c.instructions = c.instructions[:c.emitted.Position]
+	c.emitted = c.prevEmitted
+}
+
+// Changes the operand of an instruction at the given position
+func (c *Compiler) changeOperand(pos int, operand int) {
+	opcode := operation.Opcode(c.instructions[pos])
+	ins := operation.NewInstruction(opcode, operand)
+
+	// replaces the instruction with the one created with the new operand
+	for i := range ins {
+		c.instructions[pos+i] = ins[i]
+	}
 }

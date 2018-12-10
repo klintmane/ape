@@ -23,4 +23,7 @@ const (
 
 	Minus
 	Bang
+
+	Jump
+	JumpNotTruthy
 )

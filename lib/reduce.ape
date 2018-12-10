@@ -1,5 +1,5 @@
 let reduce = fn(arr, f, initial) {
-  
+
   let iterate = fn(arr, accumulator) {
     if (len(arr) == 0) {
       accumulator
@@ -7,6 +7,6 @@ let reduce = fn(arr, f, initial) {
       iterate(tail(arr), f(accumulator, head(arr)));
     }
   };
-  
+
   iterate(arr, initial);
 };
