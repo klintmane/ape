@@ -73,11 +73,7 @@ func runVMTests(t *testing.T, tests []vmTestCase) {
 
 }
 
-func testExpectedData(
-	t *testing.T,
-	expected interface{},
-	actual data.Data,
-) {
+func testExpectedData(t *testing.T, expected interface{}, actual data.Data) {
 	t.Helper()
 
 	switch expected := expected.(type) {
@@ -92,6 +88,11 @@ func testExpectedData(
 		err := testBooleanData(bool(expected), actual)
 		if err != nil {
 			t.Errorf("testBooleanData failed: %s", err)
+		}
+
+	case *data.Null:
+		if actual != NULL {
+			t.Errorf("object is not Null: %T (%+v)", actual, actual)
 		}
 	}
 }
@@ -147,6 +148,7 @@ func TestBooleanExpressions(t *testing.T) {
 		{"!!true", true},
 		{"!!false", false},
 		{"!!5", true},
+		{"!(if (false) { 5; })", true},
 	}
 
 	runVMTests(t, tests)
@@ -161,6 +163,9 @@ func TestConditionals(t *testing.T) {
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1 < 2) { 10 } else { 20 }", 10},
 		{"if (1 > 2) { 10 } else { 20 }", 20},
+		{"if (1 > 2) { 10 }", NULL},
+		{"if (false) { 10 }", NULL},
+		{"if ((if (false) { 10 })) { 10 } else { 20 }", 20},
 	}
 
 	runVMTests(t, tests)

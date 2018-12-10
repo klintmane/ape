@@ -26,4 +26,6 @@ const (
 
 	Jump
 	JumpNotTruthy
+
+	Null
 )

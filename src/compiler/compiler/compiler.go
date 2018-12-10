@@ -135,31 +135,23 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		// We do not know the position at this moment, so we'll emit a temporary instruction
-		tempIns := c.emit(operation.JumpNotTruthy, 9999)
+		// Emit a `JumpNotTruthy` with a temporary operand
+		jumpNotTruthyPos := c.emit(operation.JumpNotTruthy, 9999)
 		err = c.Compile(node.Consequent)
 		if err != nil {
 			return err
 		}
-
-		// Prevent the popping of the result, to allow assigning to a variable
 		if c.popEmitted() {
 			c.preventPop()
 		}
 
-		// If no else statement, replace the temporary instruction position with the correct one
+		// Emit a `Jump` with a temporary operand
+		jumpPos := c.emit(operation.Jump, 9999)
+		afterConsequentPos := len(c.instructions)
+		c.changeOperand(jumpNotTruthyPos, afterConsequentPos)
 		if node.Alternate == nil {
-			finalPos := len(c.instructions)
-			c.changeOperand(tempIns, finalPos)
+			c.emit(operation.Null)
 		} else {
-			// We do not know the position at this moment, so we'll emit a temporary jump
-			jumpPos := c.emit(operation.Jump, 9999)
-
-			// Replace the previous temporary instruction position with the start of the else statement
-			finalPos := len(c.instructions)
-			c.changeOperand(tempIns, finalPos)
-
-			// Perform similar logic for the else statement
 			err := c.Compile(node.Alternate)
 			if err != nil {
 				return err
@@ -167,9 +159,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if c.popEmitted() {
 				c.preventPop()
 			}
-			alternatePos := len(c.instructions)
-			c.changeOperand(jumpPos, alternatePos)
 		}
+
+		afterAlternatePos := len(c.instructions)
+		c.changeOperand(jumpPos, afterAlternatePos)
 
 	case *ast.BlockStatement:
 		for _, s := range node.Statements {

@@ -176,6 +176,30 @@ func TestConditionals(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
+			if (true) { 10 }; 3333;
+			`,
+			expectedConstants: []interface{}{10, 3333},
+			expectedInstructions: []operation.Instruction{
+				// 0000
+				operation.NewInstruction(operation.True),
+				// 0001
+				operation.NewInstruction(operation.JumpNotTruthy, 10),
+				// 0004
+				operation.NewInstruction(operation.Constant, 0),
+				// 0007
+				operation.NewInstruction(operation.Jump, 11),
+				// 0010
+				operation.NewInstruction(operation.Null),
+				// 0011
+				operation.NewInstruction(operation.Pop),
+				// 0012
+				operation.NewInstruction(operation.Constant, 1),
+				// 0015
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
 			if (true) { 10 } else { 20 }; 3333;
 			`,
 			expectedConstants: []interface{}{10, 20, 3333},

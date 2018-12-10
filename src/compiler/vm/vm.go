@@ -10,6 +10,7 @@ import (
 var (
 	TRUE  = &data.Boolean{Value: true}
 	FALSE = &data.Boolean{Value: false}
+	NULL  = &data.Null{}
 )
 
 // VM contains the definition of the VM
@@ -99,6 +100,12 @@ func (vm *VM) Run() error {
 				pointer = pos - 1
 			}
 
+		case operation.Null:
+			err := vm.stack.push(NULL)
+			if err != nil {
+				return err
+			}
+
 		}
 	}
 	return nil
@@ -108,6 +115,8 @@ func isTruthy(d data.Data) bool {
 	switch d := d.(type) {
 	case *data.Boolean:
 		return d.Value
+	case *data.Null:
+		return false
 	default:
 		return true
 	}

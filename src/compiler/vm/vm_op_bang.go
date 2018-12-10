@@ -8,6 +8,8 @@ func (vm *VM) executeBangOp() error {
 		return vm.stack.push(FALSE)
 	case FALSE:
 		return vm.stack.push(TRUE)
+	case NULL:
+		return vm.stack.push(TRUE)
 	default:
 		return vm.stack.push(FALSE)
 	}
