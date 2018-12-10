@@ -147,17 +147,19 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.preventPop()
 		}
 
-		// If no else statement, replace the jump position with the correct one
+		// If no else statement, replace the temporary instruction position with the correct one
 		if node.Alternate == nil {
 			finalPos := len(c.instructions)
 			c.changeOperand(tempIns, finalPos)
 		} else {
-			// Emit an `OpJump` with a bogus value
+			// We do not know the position at this moment, so we'll emit a temporary jump
 			jumpPos := c.emit(operation.Jump, 9999)
 
+			// Replace the previous temporary instruction position with the start of the else statement
 			finalPos := len(c.instructions)
 			c.changeOperand(tempIns, finalPos)
 
+			// Perform similar logic for the else statement
 			err := c.Compile(node.Alternate)
 			if err != nil {
 				return err
