@@ -40,6 +40,17 @@ func New() *Compiler {
 	}
 }
 
+// NewWithState creates a new compiler
+func NewWithState(s *symbols.SymbolTable, c []data.Data) *Compiler {
+	return &Compiler{
+		instructions: operation.Instruction{},
+		constants:    c,
+		symbols:      s,
+		emitted:      Emitted{},
+		prevEmitted:  Emitted{},
+	}
+}
+
 // Compile compiles an AST and populates the instructions and constants accordingly
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {

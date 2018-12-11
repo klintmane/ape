@@ -6,6 +6,8 @@ import (
 	"ape/src/data"
 )
 
+const GLOBALS_SIZE = 65536 // size of an operand
+
 // Global references, so a new object does not get allocated for each evaluation
 var (
 	TRUE  = &data.Boolean{Value: true}
@@ -15,8 +17,9 @@ var (
 
 // VM contains the definition of the VM
 type VM struct {
-	constants    []data.Data
 	instructions operation.Instruction
+	constants    []data.Data
+	globals      []data.Data
 	stack        *Stack
 }
 
@@ -25,6 +28,16 @@ func New(bytecode *compiler.Bytecode) *VM {
 	return &VM{
 		instructions: bytecode.Instructions,
 		constants:    bytecode.Constants,
+		globals:      make([]data.Data, GLOBALS_SIZE),
+		stack:        NewStack(2048),
+	}
+}
+
+func NewWithGlobals(bytecode *compiler.Bytecode, globals []data.Data) *VM {
+	return &VM{
+		instructions: bytecode.Instructions,
+		constants:    bytecode.Constants,
+		globals:      globals,
 		stack:        NewStack(2048),
 	}
 }
@@ -102,6 +115,19 @@ func (vm *VM) Run() error {
 
 		case operation.Null:
 			err := vm.stack.push(NULL)
+			if err != nil {
+				return err
+			}
+
+		case operation.SetGlobal:
+			index := operation.ReadUint16(vm.instructions[pointer+1:])
+			pointer += 2
+			vm.globals[index] = vm.stack.pop()
+
+		case operation.GetGlobal:
+			index := operation.ReadUint16(vm.instructions[pointer+1:])
+			pointer += 2
+			err := vm.stack.push(vm.globals[index])
 			if err != nil {
 				return err
 			}

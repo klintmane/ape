@@ -2,7 +2,9 @@ package repl
 
 import (
 	"ape/src/compiler/compiler"
+	"ape/src/compiler/symbols"
 	"ape/src/compiler/vm"
+	"ape/src/data"
 	"ape/src/lexer"
 	"ape/src/parser"
 	"bufio"
@@ -12,6 +14,10 @@ import (
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+
+	constants := []data.Data{}
+	globals := make([]data.Data, vm.GLOBALS_SIZE)
+	symbols := symbols.New()
 
 	for {
 		prompt()
@@ -31,7 +37,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.New()
+		comp := compiler.NewWithState(symbols, constants)
 		err := comp.Compile(program)
 
 		if err != nil {
@@ -39,7 +45,10 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		machine := vm.New(comp.Bytecode())
+		bytecode := comp.Bytecode()
+		constants = bytecode.Constants
+
+		machine := vm.NewWithGlobals(bytecode, globals)
 		err = machine.Run()
 
 		if err != nil {
