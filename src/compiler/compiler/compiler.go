@@ -3,6 +3,7 @@ package compiler
 import (
 	"ape/src/ast"
 	"ape/src/compiler/operation"
+	"ape/src/compiler/symbols"
 	"ape/src/data"
 	"fmt"
 )
@@ -23,6 +24,7 @@ type Emitted struct {
 type Compiler struct {
 	instructions operation.Instruction
 	constants    []data.Data
+	symbols      *symbols.SymbolTable
 	emitted      Emitted // The last emitted instruction
 	prevEmitted  Emitted // The emitted instruction before that
 }
@@ -32,6 +34,7 @@ func New() *Compiler {
 	return &Compiler{
 		instructions: operation.Instruction{},
 		constants:    []data.Data{},
+		symbols:      symbols.New(),
 		emitted:      Emitted{},
 		prevEmitted:  Emitted{},
 	}
@@ -169,6 +172,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
+		symbol := c.symbols.Define(node.Name.Value)
+		c.emit(operation.SetGlobal, symbol.Index)
+
+	case *ast.Identifier:
+		symbol, ok := c.symbols.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("Variable %s is undefined", node.Value)
+		}
+		c.emit(operation.GetGlobal, symbol.Index)
 
 	case *ast.BlockStatement:
 		for _, s := range node.Statements {
