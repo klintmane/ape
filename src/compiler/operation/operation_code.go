@@ -28,4 +28,7 @@ const (
 	JumpNotTruthy
 
 	Null
+
+	GetGlobal
+	SetGlobal
 )

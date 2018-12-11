@@ -175,9 +175,7 @@ func TestBooleanExpressions(t *testing.T) {
 func TestConditionals(t *testing.T) {
 	tests := []compilerTestCase{
 		{
-			input: `
-			if (true) { 10 }; 3333;
-			`,
+			input:             `if (true) { 10 }; 3333;`,
 			expectedConstants: []interface{}{10, 3333},
 			expectedInstructions: []operation.Instruction{
 				// 0000
@@ -199,9 +197,7 @@ func TestConditionals(t *testing.T) {
 			},
 		},
 		{
-			input: `
-			if (true) { 10 } else { 20 }; 3333;
-			`,
+			input:             `if (true) { 10 } else { 20 }; 3333;`,
 			expectedConstants: []interface{}{10, 20, 3333},
 			expectedInstructions: []operation.Instruction{
 				// 0000
@@ -219,6 +215,54 @@ func TestConditionals(t *testing.T) {
 				// 0014
 				operation.NewInstruction(operation.Constant, 2),
 				// 0017
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestGlobalLetStatements(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				let one = 1;
+				let two = 2;
+			`,
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.SetGlobal, 1),
+			},
+		},
+		{
+			input: `
+				let one = 1;
+				one;
+			`,
+			expectedConstants: []interface{}{1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				let one = 1;
+				let two = one;
+				two;
+			`,
+			expectedConstants: []interface{}{1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.SetGlobal, 1),
+				operation.NewInstruction(operation.GetGlobal, 1),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
