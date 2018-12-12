@@ -336,6 +336,50 @@ func TestArrayLiterals(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestHashLiterals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "{}",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Hash, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "{1: 2, 3: 4, 5: 6}",
+			expectedConstants: []interface{}{1, 2, 3, 4, 5, 6},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Constant, 4),
+				operation.NewInstruction(operation.Constant, 5),
+				operation.NewInstruction(operation.Hash, 6),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "{1: 2 + 3, 4: 5 * 6}",
+			expectedConstants: []interface{}{1, 2, 3, 4, 5, 6},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Add),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Constant, 4),
+				operation.NewInstruction(operation.Constant, 5),
+				operation.NewInstruction(operation.Mul),
+				operation.NewInstruction(operation.Hash, 4),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {

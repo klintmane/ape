@@ -33,4 +33,5 @@ const (
 	SetGlobal
 
 	Array
+	Hash
 )

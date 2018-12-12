@@ -141,6 +141,19 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.Hash:
+			numElements := int(operation.ReadUint16(vm.instructions[pointer+1:]))
+			pointer += 2
+			hash, err := vm.buildHash(vm.stack.pointer-numElements, vm.stack.pointer)
+			if err != nil {
+				return err
+			}
+			vm.stack.pointer = vm.stack.pointer - numElements
+			err = vm.stack.push(hash)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
