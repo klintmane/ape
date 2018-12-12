@@ -26,23 +26,23 @@ func (vm *VM) executeBinaryOp(op operation.Opcode) error {
 }
 
 func (vm *VM) executeBinaryIntegerOp(op operation.Opcode, left, right data.Data) error {
-	leftValue := left.(*data.Integer).Value
-	rightValue := right.(*data.Integer).Value
-
 	var result int64
+
+	leftVal := left.(*data.Integer).Value
+	rightVal := right.(*data.Integer).Value
 
 	switch op {
 	case operation.Add:
-		result = leftValue + rightValue
+		result = leftVal + rightVal
 
 	case operation.Sub:
-		result = leftValue - rightValue
+		result = leftVal - rightVal
 
 	case operation.Mul:
-		result = leftValue * rightValue
+		result = leftVal * rightVal
 
 	case operation.Div:
-		result = leftValue / rightValue
+		result = leftVal / rightVal
 
 	default:
 		return fmt.Errorf("unknown integer operator: %d", op)
@@ -51,15 +51,19 @@ func (vm *VM) executeBinaryIntegerOp(op operation.Opcode, left, right data.Data)
 }
 
 func (vm *VM) executeBinaryStringOp(op operation.Opcode, left, right data.Data) error {
-	leftValue := left.(*data.String).Value
-	rightValue := right.(*data.String).Value
+	var result string
+
+	leftVal := left.(*data.String).Value
+	rightVal := right.(*data.String).Value
 
 	switch op {
 	case operation.Add:
-		return vm.stack.push(&data.String{Value: leftValue + rightValue})
+		result = leftVal + rightVal
 
 	default:
 		return fmt.Errorf("unknown string operator: %d", op)
 	}
+
+	return vm.stack.push(&data.String{Value: result})
 
 }
