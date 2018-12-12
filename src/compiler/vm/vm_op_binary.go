@@ -51,11 +51,11 @@ func (vm *VM) executeBinaryIntegerOp(op operation.Opcode, left, right data.Data)
 }
 
 func (vm *VM) executeBinaryStringOp(op operation.Opcode, left, right data.Data) error {
+	leftValue := left.(*data.String).Value
+	rightValue := right.(*data.String).Value
 
 	switch op {
 	case operation.Add:
-		leftValue := left.(*data.String).Value
-		rightValue := right.(*data.String).Value
 		return vm.stack.push(&data.String{Value: leftValue + rightValue})
 
 	default:
