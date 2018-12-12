@@ -294,6 +294,50 @@ func TestStringExpressions(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestArrayLiterals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "[]",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Array, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "[1, 2, 3]",
+			expectedConstants: []interface{}{1, 2, 3},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Array, 3),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "[1 + 2, 3 - 4, 5 * 6]",
+			expectedConstants: []interface{}{1, 2, 3, 4, 5, 6},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Add),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Sub),
+				operation.NewInstruction(operation.Constant, 4),
+				operation.NewInstruction(operation.Constant, 5),
+				operation.NewInstruction(operation.Mul),
+				operation.NewInstruction(operation.Array, 3),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+// * HELPERS
+
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 	t.Helper()
 
@@ -319,8 +363,6 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 		}
 	}
 }
-
-// * HELPERS
 
 // lexes and parses a program, returning an AST
 func parse(input string) *ast.Program {

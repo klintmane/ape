@@ -63,7 +63,5 @@ func (vm *VM) executeBinaryStringOp(op operation.Opcode, left, right data.Data) 
 	default:
 		return fmt.Errorf("unknown string operator: %d", op)
 	}
-
 	return vm.stack.push(&data.String{Value: result})
-
 }

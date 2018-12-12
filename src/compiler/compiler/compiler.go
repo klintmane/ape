@@ -147,6 +147,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 		str := &data.String{Value: node.Value}
 		c.emit(operation.Constant, c.addConstant(str))
 
+	case *ast.ArrayLiteral:
+		for _, el := range node.Elements {
+			err := c.Compile(el)
+			if err != nil {
+				return err
+			}
+		}
+		c.emit(operation.Array, len(node.Elements))
+
 	case *ast.IfExpression:
 		err := c.Compile(node.Condition)
 		if err != nil {

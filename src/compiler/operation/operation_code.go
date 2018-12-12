@@ -31,4 +31,6 @@ const (
 
 	GetGlobal
 	SetGlobal
+
+	Array
 )

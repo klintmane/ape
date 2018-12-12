@@ -112,6 +112,23 @@ func testExpectedData(t *testing.T, expected interface{}, actual data.Data) {
 		if err != nil {
 			t.Errorf("testStringData failed: %s", err)
 		}
+
+	case []int:
+		array, ok := actual.(*data.Array)
+		if !ok {
+			t.Errorf("data not Array: %T (%+v)", actual, actual)
+			return
+		}
+		if len(array.Elements) != len(expected) {
+			t.Errorf("wrong num of elements. want=%d, got=%d", len(expected), len(array.Elements))
+			return
+		}
+		for i, expectedElem := range expected {
+			err := testIntegerData(int64(expectedElem), array.Elements[i])
+			if err != nil {
+				t.Errorf("testIntegerData failed: %s", err)
+			}
+		}
 	}
 }
 
@@ -206,5 +223,14 @@ func TestStringExpressions(t *testing.T) {
 		{`"ape" + "lang" + "uage"`, "apelanguage"},
 	}
 
+	runVMTests(t, tests)
+}
+
+func TestArrayLiterals(t *testing.T) {
+	tests := []vmTestCase{
+		{"[]", []int{}},
+		{"[1, 2, 3]", []int{1, 2, 3}},
+		{"[1 + 2, 3 * 4, 5 + 6]", []int{3, 12, 11}},
+	}
 	runVMTests(t, tests)
 }

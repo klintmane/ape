@@ -132,6 +132,15 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case operation.Array:
+			numElements := int(operation.ReadUint16(vm.instructions[pointer+1:]))
+			pointer += 2
+			array := vm.buildArray(vm.stack.pointer-numElements, vm.stack.pointer)
+			vm.stack.pointer = vm.stack.pointer - numElements
+			err := vm.stack.push(array)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
