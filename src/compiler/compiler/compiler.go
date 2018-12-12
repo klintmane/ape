@@ -143,6 +143,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(operation.False)
 		}
 
+	case *ast.StringLiteral:
+		str := &data.String{Value: node.Value}
+		c.emit(operation.Constant, c.addConstant(str))
+
 	case *ast.IfExpression:
 		err := c.Compile(node.Condition)
 		if err != nil {

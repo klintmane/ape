@@ -27,7 +27,6 @@ func testIntegerData(expected int64, actual data.Data) error {
 	if result.Value != expected {
 		return fmt.Errorf("data has wrong value. got=%d, want=%d", result.Value, expected)
 	}
-
 	return nil
 }
 
@@ -37,9 +36,22 @@ func testBooleanData(expected bool, actual data.Data) error {
 		return fmt.Errorf("data is not Boolean. got=%T (%+v)",
 			actual, actual)
 	}
+
 	if result.Value != expected {
 		return fmt.Errorf("data has wrong value. got=%t, want=%t",
 			result.Value, expected)
+	}
+	return nil
+}
+
+func testStringData(expected string, actual data.Data) error {
+	result, ok := actual.(*data.String)
+	if !ok {
+		return fmt.Errorf("data is not String. got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("data has wrong value. got=%q, want=%q", result.Value, expected)
 	}
 	return nil
 }
@@ -92,7 +104,13 @@ func testExpectedData(t *testing.T, expected interface{}, actual data.Data) {
 
 	case *data.Null:
 		if actual != NULL {
-			t.Errorf("object is not Null: %T (%+v)", actual, actual)
+			t.Errorf("data is not Null: %T (%+v)", actual, actual)
+		}
+
+	case string:
+		err := testStringData(expected, actual)
+		if err != nil {
+			t.Errorf("testStringData failed: %s", err)
 		}
 	}
 }
@@ -176,6 +194,16 @@ func TestGlobalLetStatements(t *testing.T) {
 		{"let one = 1; one", 1},
 		{"let one = 1; let two = 2; one + two", 3},
 		{"let one = 1; let two = one + one; one + two", 3},
+	}
+
+	runVMTests(t, tests)
+}
+
+func TestStringExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{`"apelang"`, "apelang"},
+		{`"ape" + "lang"`, "apelang"},
+		{`"ape" + "lang" + "uage"`, "apelanguage"},
 	}
 
 	runVMTests(t, tests)

@@ -13,10 +13,16 @@ func (vm *VM) executeBinaryOp(op operation.Opcode) error {
 	leftType := left.Type()
 	rightType := right.Type()
 
-	if leftType == data.INTEGER_TYPE && rightType == data.INTEGER_TYPE {
+	switch {
+	case leftType == data.INTEGER_TYPE && rightType == data.INTEGER_TYPE:
 		return vm.executeBinaryIntegerOp(op, left, right)
+
+	case leftType == data.STRING_TYPE && rightType == data.STRING_TYPE:
+		return vm.executeBinaryStringOp(op, left, right)
+
+	default:
+		return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
 	}
-	return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
 }
 
 func (vm *VM) executeBinaryIntegerOp(op operation.Opcode, left, right data.Data) error {
@@ -42,4 +48,18 @@ func (vm *VM) executeBinaryIntegerOp(op operation.Opcode, left, right data.Data)
 		return fmt.Errorf("unknown integer operator: %d", op)
 	}
 	return vm.stack.push(&data.Integer{Value: result})
+}
+
+func (vm *VM) executeBinaryStringOp(op operation.Opcode, left, right data.Data) error {
+
+	switch op {
+	case operation.Add:
+		leftValue := left.(*data.String).Value
+		rightValue := right.(*data.String).Value
+		return vm.stack.push(&data.String{Value: leftValue + rightValue})
+
+	default:
+		return fmt.Errorf("unknown string operator: %d", op)
+	}
+
 }

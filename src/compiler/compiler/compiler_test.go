@@ -270,6 +270,30 @@ func TestGlobalLetStatements(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestStringExpressions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `"apelang"`,
+			expectedConstants: []interface{}{"apelang"},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             `"ape" + "lang"`,
+			expectedConstants: []interface{}{"ape", "lang"},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Add),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 	t.Helper()
 
@@ -344,6 +368,12 @@ func testConstants(t *testing.T, expected []interface{}, actual []data.Data) err
 			if err != nil {
 				return fmt.Errorf("constant %d - testIntegerData failed: %s", i, err)
 			}
+
+		case string:
+			err := testStringData(constant, actual[i])
+			if err != nil {
+				return fmt.Errorf("constant %d - testStringData failed: %s", i, err)
+			}
 		}
 	}
 	return nil
@@ -353,11 +383,23 @@ func testIntegerData(expected int64, actual data.Data) error {
 	result, ok := actual.(*data.Integer)
 
 	if !ok {
-		return fmt.Errorf("object is not Integer. got=%T (%+v)", actual, actual)
+		return fmt.Errorf("data is not Integer. got=%T (%+v)", actual, actual)
 	}
 
 	if result.Value != expected {
-		return fmt.Errorf("object has wrong value. got=%d, want=%d", result.Value, expected)
+		return fmt.Errorf("data has wrong value. got=%d, want=%d", result.Value, expected)
+	}
+	return nil
+}
+
+func testStringData(expected string, actual data.Data) error {
+	result, ok := actual.(*data.String)
+	if !ok {
+		return fmt.Errorf("data is not String. got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("data has wrong value. got=%q, want=%q", result.Value, expected)
 	}
 	return nil
 }
