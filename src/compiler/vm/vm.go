@@ -154,6 +154,14 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.Index:
+			index := vm.stack.pop()
+			left := vm.stack.pop()
+			err := vm.executeIndexExpr(left, index)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

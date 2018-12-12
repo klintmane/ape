@@ -380,6 +380,41 @@ func TestHashLiterals(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestIndexExpressions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "[1, 2, 3][1 + 1]",
+			expectedConstants: []interface{}{1, 2, 3, 1, 1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Array, 3),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Constant, 4),
+				operation.NewInstruction(operation.Add),
+				operation.NewInstruction(operation.Index),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input:             "{1: 2}[2 - 1]",
+			expectedConstants: []interface{}{1, 2, 2, 1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Hash, 2),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Sub),
+				operation.NewInstruction(operation.Index),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {

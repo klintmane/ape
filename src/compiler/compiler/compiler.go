@@ -178,6 +178,17 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(operation.Hash, len(node.Pairs)*2)
 
+	case *ast.IndexExpression:
+		err := c.Compile(node.Left)
+		if err != nil {
+			return err
+		}
+		err = c.Compile(node.Index)
+		if err != nil {
+			return err
+		}
+		c.emit(operation.Index)
+
 	case *ast.IfExpression:
 		err := c.Compile(node.Condition)
 		if err != nil {

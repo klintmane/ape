@@ -39,6 +39,8 @@ var operations = map[Opcode]*Operation{
 
 	Array: {"Array", []int{2}},
 	Hash:  {"Hash", []int{2}},
+
+	Index: {"Index", []int{}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation

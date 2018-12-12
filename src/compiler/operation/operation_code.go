@@ -34,4 +34,6 @@ const (
 
 	Array
 	Hash
+
+	Index
 )
