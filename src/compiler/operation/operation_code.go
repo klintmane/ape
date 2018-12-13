@@ -7,33 +7,42 @@ type Opcode byte
 const (
 	Pop Opcode = iota
 
+	// Primitives
 	Constant
+	True
+	False
+	Null
 
+	// Arithmetic
 	Add
 	Sub
 	Mul
 	Div
 
-	True
-	False
-
+	// Comparison
 	Equal
 	NotEqual
 	GreaterThan
 
+	// Prefix/Infix
 	Minus
 	Bang
 
+	// Jumps
 	Jump
 	JumpNotTruthy
 
-	Null
-
+	// Variables
 	GetGlobal
 	SetGlobal
 
+	// Data Structures
 	Array
 	Hash
-
 	Index
+
+	// Functions
+	Call
+	Return
+	ReturnValue
 )

@@ -10,37 +10,46 @@ type Operation struct {
 
 // maps the Opcodes to the corresponding Operations
 var operations = map[Opcode]*Operation{
-	Pop: {"Pop", []int{}},
+	Pop: {"Pop", []int{}}, // Pop the value on top of the stack
 
-	Constant: {"Constant", []int{2}},
+	// Primitives
+	Constant: {"Constant", []int{2}}, // Set a constant (to the given value)
+	True:     {"True", []int{}},
+	False:    {"False", []int{}},
+	Null:     {"Null", []int{}},
 
+	// Arithmetic
 	Add: {"Add", []int{}},
 	Sub: {"Sub", []int{}},
 	Mul: {"Mul", []int{}},
 	Div: {"Div", []int{}},
 
-	True:  {"True", []int{}},
-	False: {"False", []int{}},
-
+	// Comparison
 	Equal:       {"Equal", []int{}},
 	NotEqual:    {"NotEqual", []int{}},
 	GreaterThan: {"GreaterThan", []int{}},
 
+	// Prefix/Infix
 	Minus: {"Minus", []int{}},
 	Bang:  {"Bang", []int{}},
 
-	Jump:          {"Jump", []int{2}},
-	JumpNotTruthy: {"JumpNotTruthy", []int{2}},
+	// Jumps
+	Jump:          {"Jump", []int{2}},          // Jump if value on top of stack truthy (to the given instruction)
+	JumpNotTruthy: {"JumpNotTruthy", []int{2}}, // Jump if value on top of stack not truthy (to the given instruction)
 
-	Null: {"Null", []int{}},
+	// Variables
+	GetGlobal: {"Null", []int{2}}, // Get a Global variable definition (at the given index)
+	SetGlobal: {"Null", []int{2}}, // Set a Global variable definition (with the given value)
 
-	GetGlobal: {"Null", []int{2}},
-	SetGlobal: {"Null", []int{2}},
+	// Data Structures
+	Array: {"Array", []int{2}}, // Create an Array literal (with the given declaration)
+	Hash:  {"Hash", []int{2}},  // Create a Hash literal (with the given declaration)
+	Index: {"Index", []int{}},  // Index operator
 
-	Array: {"Array", []int{2}},
-	Hash:  {"Hash", []int{2}},
-
-	Index: {"Index", []int{}},
+	// Functions
+	Call:        {"Call", []int{}},        // Call the function on top of the stack
+	Return:      {"Return", []int{}},      // Return nothing, exit the function and return nil
+	ReturnValue: {"ReturnValue", []int{}}, // Returns the value on top of the stack
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation
