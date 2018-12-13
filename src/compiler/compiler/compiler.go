@@ -209,7 +209,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
-		if c.popEmitted() {
+		if c.isEmitted(operation.Pop) {
 			c.preventPop()
 		}
 
@@ -224,7 +224,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if err != nil {
 				return err
 			}
-			if c.popEmitted() {
+			if c.isEmitted(operation.Pop) {
 				c.preventPop()
 			}
 		}
@@ -260,7 +260,19 @@ func (c *Compiler) Compile(node ast.Node) error {
 		err := c.Compile(node.Body)
 		if err != nil {
 			return err
+
 		}
+
+		// If a pop was emitted, replace it with a return value (implicit return)
+		if c.isEmitted(operation.Pop) {
+			c.changeEmittedTo(operation.ReturnValue)
+		}
+
+		// If no return value was emitted, emit a return instead (no return - empty body)
+		if !c.isEmitted(operation.ReturnValue) {
+			c.emit(operation.Return)
+		}
+
 		instructions := c.leaveScope()
 		compiled := &data.CompiledFunction{Instructions: instructions}
 		c.emit(operation.Constant, c.addConstant(compiled))
@@ -313,9 +325,12 @@ func (c *Compiler) setEmitted(op operation.Opcode, pos int) {
 	c.scopes[c.currentScope].emitted = Emitted{Opcode: op, Position: pos}
 }
 
-// Checks if the last emitted instruction is a pop instruction
-func (c *Compiler) popEmitted() bool {
-	return c.scopes[c.currentScope].emitted.Opcode == operation.Pop
+// Checks if the last emitted instruction is a given operation
+func (c *Compiler) isEmitted(code operation.Opcode) bool {
+	if len(c.currentInstructions()) == 0 {
+		return false
+	}
+	return c.scopes[c.currentScope].emitted.Opcode == code
 }
 
 // Prevents a pop instruction from taking place by replacing it with the previous instruction
@@ -327,15 +342,29 @@ func (c *Compiler) preventPop() {
 	c.scopes[c.currentScope].emitted = c.scopes[c.currentScope].prevEmitted
 }
 
+// Changes an instruction at a given position to a given instruction
+func (c *Compiler) changeInstruction(pos int, ins []byte) {
+	instructions := c.currentInstructions()
+	for i := range ins {
+		instructions[pos+i] = ins[i]
+	}
+}
+
 // Changes the operand of an instruction at the given position
 func (c *Compiler) changeOperand(pos int, operand int) {
 	opcode := operation.Opcode(c.currentInstructions()[pos])
 	ins := operation.NewInstruction(opcode, operand)
 
 	// replaces the instruction with the one created with the new operand
-	for i := range ins {
-		c.currentInstructions()[pos+i] = ins[i]
-	}
+	c.changeInstruction(pos, ins)
+}
+
+// Changes the emitted instruction to a given one
+func (c *Compiler) changeEmittedTo(code operation.Opcode) {
+	pos := c.scopes[c.currentScope].emitted.Position
+	c.changeInstruction(pos, operation.NewInstruction(code))
+
+	c.scopes[c.currentScope].emitted.Opcode = code
 }
 
 // Returns the instructions in the current compiler scope

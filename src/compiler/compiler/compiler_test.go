@@ -434,6 +434,41 @@ func TestFunctions(t *testing.T) {
 				operation.NewInstruction(operation.Pop),
 			},
 		},
+		{
+			input: `fn() { 1; 2 }`,
+			expectedConstants: []interface{}{
+				1,
+				2,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0),
+					operation.NewInstruction(operation.Pop),
+					operation.NewInstruction(operation.Constant, 1),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestFunctionsWithoutReturnValue(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `fn() { }`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Return),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }
