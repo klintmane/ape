@@ -1,0 +1,4 @@
+// Elixir-like structs, based on maps but providing compile-time guarantees
+
+let Person = struct { "name", "id" }
+let p = Person{ "id": 123 }
