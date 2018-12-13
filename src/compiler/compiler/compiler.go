@@ -23,33 +23,41 @@ type Emitted struct {
 
 // Compiler contains the instructions and constants which will then be turned into bytecode
 type Compiler struct {
-	instructions operation.Instruction
 	constants    []data.Data
 	symbols      *symbols.SymbolTable
-	emitted      Emitted // The last emitted instruction
-	prevEmitted  Emitted // The emitted instruction before that
+	scopes       []Scope
+	currentScope int
+}
+
+// Scope contains the scope of the compilation
+type Scope struct {
+	instructions operation.Instruction // The instructions that will be compiled
+	emitted      Emitted               // The last emitted instruction
+	prevEmitted  Emitted               // The emitted instruction before that
 }
 
 // New creates a new compiler
 func New() *Compiler {
-	return &Compiler{
+	rootScope := Scope{
 		instructions: operation.Instruction{},
-		constants:    []data.Data{},
-		symbols:      symbols.New(),
 		emitted:      Emitted{},
 		prevEmitted:  Emitted{},
+	}
+
+	return &Compiler{
+		constants:    []data.Data{},
+		symbols:      symbols.New(),
+		scopes:       []Scope{rootScope},
+		currentScope: 0,
 	}
 }
 
 // NewWithState creates a new compiler
-func NewWithState(s *symbols.SymbolTable, c []data.Data) *Compiler {
-	return &Compiler{
-		instructions: operation.Instruction{},
-		constants:    c,
-		symbols:      s,
-		emitted:      Emitted{},
-		prevEmitted:  Emitted{},
-	}
+func NewWithState(syms *symbols.SymbolTable, consts []data.Data) *Compiler {
+	c := New()
+	c.constants = consts
+	c.symbols = syms
+	return c
 }
 
 // Compile compiles an AST and populates the instructions and constants accordingly
@@ -207,7 +215,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		// Emit a `Jump` with a temporary operand
 		jumpPos := c.emit(operation.Jump, 9999)
-		afterConsequentPos := len(c.instructions)
+		afterConsequentPos := len(c.currentInstructions())
 		c.changeOperand(jumpNotTruthyPos, afterConsequentPos)
 		if node.Alternate == nil {
 			c.emit(operation.Null)
@@ -221,7 +229,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 
-		afterAlternatePos := len(c.instructions)
+		afterAlternatePos := len(c.currentInstructions())
 		c.changeOperand(jumpPos, afterAlternatePos)
 
 	case *ast.LetStatement:
@@ -253,7 +261,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 // Bytecode produces bytecode out of the compiler result
 func (c *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
-		Instructions: c.instructions,
+		Instructions: c.currentInstructions(),
 		Constants:    c.constants,
 	}
 }
@@ -264,10 +272,12 @@ func (c *Compiler) addConstant(d data.Data) int {
 	return len(c.constants) - 1
 }
 
-// Adds an instruction to the instruction list and returns its index
+// Adds an instruction to the instruction list (of the current scope) and returns its index
 func (c *Compiler) addInstruction(ins []byte) int {
-	pos := len(c.instructions)
-	c.instructions = append(c.instructions, ins...)
+	pos := len(c.currentInstructions())
+	instructions := append(c.currentInstructions(), ins...)
+	c.scopes[c.currentScope].instructions = instructions
+
 	return pos
 }
 
@@ -281,28 +291,55 @@ func (c *Compiler) emit(op operation.Opcode, operands ...int) int {
 
 // Updates the emitted and prevEmitted values
 func (c *Compiler) setEmitted(op operation.Opcode, pos int) {
-	c.prevEmitted = c.emitted
-	c.emitted = Emitted{Opcode: op, Position: pos}
+	c.scopes[c.currentScope].prevEmitted = c.scopes[c.currentScope].emitted
+	c.scopes[c.currentScope].emitted = Emitted{Opcode: op, Position: pos}
 }
 
 // Checks if the last emitted instruction is a pop instruction
 func (c *Compiler) popEmitted() bool {
-	return c.emitted.Opcode == operation.Pop
+	return c.scopes[c.currentScope].emitted.Opcode == operation.Pop
 }
 
 // Prevents a pop instruction from taking place by replacing it with the previous instruction
 func (c *Compiler) preventPop() {
-	c.instructions = c.instructions[:c.emitted.Position]
-	c.emitted = c.prevEmitted
+	old := c.currentInstructions()
+	new := old[:c.scopes[c.currentScope].emitted.Position]
+
+	c.scopes[c.currentScope].instructions = new
+	c.scopes[c.currentScope].emitted = c.scopes[c.currentScope].prevEmitted
 }
 
 // Changes the operand of an instruction at the given position
 func (c *Compiler) changeOperand(pos int, operand int) {
-	opcode := operation.Opcode(c.instructions[pos])
+	opcode := operation.Opcode(c.currentInstructions()[pos])
 	ins := operation.NewInstruction(opcode, operand)
 
 	// replaces the instruction with the one created with the new operand
 	for i := range ins {
-		c.instructions[pos+i] = ins[i]
+		c.currentInstructions()[pos+i] = ins[i]
 	}
+}
+
+// Returns the instructions in the current compiler scope
+func (c *Compiler) currentInstructions() operation.Instruction {
+	return c.scopes[c.currentScope].instructions
+}
+
+// Enters a new compilation scope
+func (c *Compiler) enterScope() {
+	scope := Scope{
+		instructions: operation.Instruction{},
+		emitted:      Emitted{},
+		prevEmitted:  Emitted{},
+	}
+	c.scopes = append(c.scopes, scope)
+	c.currentScope++
+}
+
+// Returns to the previous compilation scope
+func (c *Compiler) leaveScope() operation.Instruction {
+	instructions := c.currentInstructions()
+	c.scopes = c.scopes[:len(c.scopes)-1]
+	c.currentScope--
+	return instructions
 }

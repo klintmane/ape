@@ -415,6 +415,72 @@ func TestIndexExpressions(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestFunctions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `fn() { return 5 + 10 }`,
+			expectedConstants: []interface{}{
+				5,
+				10,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0),
+					operation.NewInstruction(operation.Constant, 1),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestCompilerScopes(t *testing.T) {
+	compiler := New()
+	if compiler.currentScope != 0 {
+		t.Errorf("currentScope wrong. got=%d, want=%d", compiler.currentScope, 0)
+	}
+
+	compiler.emit(operation.Mul)
+	compiler.enterScope()
+	if compiler.currentScope != 1 {
+		t.Errorf("currentScope wrong. got=%d, want=%d", compiler.currentScope, 1)
+	}
+
+	compiler.emit(operation.Sub)
+	if len(compiler.scopes[compiler.currentScope].instructions) != 1 {
+		t.Errorf("instructions length wrong. got=%d", len(compiler.scopes[compiler.currentScope].instructions))
+	}
+
+	last := compiler.scopes[compiler.currentScope].emitted
+	if last.Opcode != operation.Sub {
+		t.Errorf("emitted.Opcode wrong. got=%d, want=%d", last.Opcode, operation.Sub)
+	}
+
+	compiler.leaveScope()
+	if compiler.currentScope != 0 {
+		t.Errorf("currentScope wrong. got=%d, want=%d", compiler.currentScope, 0)
+	}
+
+	compiler.emit(operation.Add)
+	if len(compiler.scopes[compiler.currentScope].instructions) != 2 {
+		t.Errorf("instructions length wrong. got=%d", len(compiler.scopes[compiler.currentScope].instructions))
+	}
+
+	last = compiler.scopes[compiler.currentScope].emitted
+	if last.Opcode != operation.Add {
+		t.Errorf("emitted.Opcode wrong. got=%d, want=%d", last.Opcode, operation.Add)
+	}
+
+	previous := compiler.scopes[compiler.currentScope].prevEmitted
+	if previous.Opcode != operation.Mul {
+		t.Errorf("prevEmitted.Opcode wrong. got=%d, want=%d", previous.Opcode, operation.Mul)
+	}
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {
@@ -431,7 +497,7 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 
 		bytecode := compiler.Bytecode()
 
-		err = testInstructions(flattenInstructions(tt.expectedInstructions), bytecode.Instructions)
+		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
 		if err != nil {
 			t.Fatalf("testInstructions failed: %s", err)
 		}
@@ -454,7 +520,6 @@ func parse(input string) *ast.Program {
 // flattens the test expected instructions slice so it's comparable to the bytecode instructions slice
 func flattenInstructions(instructions []operation.Instruction) operation.Instruction {
 	result := operation.Instruction{}
-
 	for _, current := range instructions {
 		result = append(result, current...)
 	}
@@ -462,14 +527,14 @@ func flattenInstructions(instructions []operation.Instruction) operation.Instruc
 }
 
 // tests expected instructions
-func testInstructions(expected operation.Instruction, actual operation.Instruction) error {
-	if len(actual) != len(expected) {
-		return fmt.Errorf("wrong instructions length.\nwant=%q\ngot =%q", expected, actual)
+func testInstructions(expected []operation.Instruction, actual operation.Instruction) error {
+	flattened := flattenInstructions(expected)
+	if len(actual) != len(flattened) {
+		return fmt.Errorf("wrong instructions length.\nwant=%q\ngot =%q", flattened, actual)
 	}
-
-	for i, ins := range expected {
+	for i, ins := range flattened {
 		if actual[i] != ins {
-			return fmt.Errorf("wrong instruction at %d.\nwant=%q\ngot =%q", i, expected, actual)
+			return fmt.Errorf("wrong instruction at %d.\nwant=%q\ngot =%q", i, flattened, actual)
 		}
 	}
 	return nil
@@ -494,6 +559,18 @@ func testConstants(t *testing.T, expected []interface{}, actual []data.Data) err
 			err := testStringData(constant, actual[i])
 			if err != nil {
 				return fmt.Errorf("constant %d - testStringData failed: %s", i, err)
+			}
+
+		case []operation.Instruction:
+			fn, ok := actual[i].(*data.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("constant %d - not a function: %T",
+					i, actual[i])
+			}
+			err := testInstructions(constant, fn.Instructions)
+			if err != nil {
+				return fmt.Errorf("constant %d - testInstructions failed: %s",
+					i, err)
 			}
 		}
 	}
