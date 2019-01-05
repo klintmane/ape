@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"fmt"
+
 	"github.com/ape-lang/ape/src/compiler/compiler"
 	"github.com/ape-lang/ape/src/compiler/operation"
 	"github.com/ape-lang/ape/src/data"
@@ -174,6 +176,31 @@ func (vm *VM) Run() error {
 			index := vm.stack.pop()
 			left := vm.stack.pop()
 			err := vm.executeIndexExpr(left, index)
+			if err != nil {
+				return err
+			}
+
+		case operation.Call:
+			fn, ok := vm.stack.top().(*data.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("calling non-function")
+			}
+			frame := NewFrame(fn)
+			vm.frames.push(frame)
+
+		case operation.ReturnValue:
+			value := vm.stack.pop()
+			vm.frames.pop()
+			vm.stack.pop()
+			err := vm.stack.push(value)
+			if err != nil {
+				return err
+			}
+
+		case operation.Return:
+			vm.frames.pop()
+			vm.stack.pop()
+			err := vm.stack.push(NULL)
 			if err != nil {
 				return err
 			}
