@@ -6,7 +6,9 @@ import (
 	"github.com/ape-lang/ape/src/data"
 )
 
-const GLOBALS_SIZE = 65536 // size of an operand
+const globalsLimit = 65536 // equal to the max value represented by uint16 (operation.Constant)
+const stackLimit = 2048
+const frameLimit = 1024
 
 // Global references, so a new object does not get allocated for each evaluation
 var (
@@ -17,29 +19,34 @@ var (
 
 // VM contains the definition of the VM
 type VM struct {
-	instructions operation.Instruction
-	constants    []data.Data
-	globals      []data.Data
-	stack        *Stack
+	constants []data.Data
+	globals   []data.Data
+	stack     *Stack
+	frames    *Frames
 }
 
 // New creates a new VM from the given Bytecode
 func New(bytecode *compiler.Bytecode) *VM {
+	// create an execution frame for the main function
+	mainFn := &data.CompiledFunction{Instructions: bytecode.Instructions}
+	mainFrame := NewFrame(mainFn)
+
+	frames := NewFrames(frameLimit)
+	frames.push(mainFrame)
+
 	return &VM{
-		instructions: bytecode.Instructions,
-		constants:    bytecode.Constants,
-		globals:      make([]data.Data, GLOBALS_SIZE),
-		stack:        NewStack(2048),
+		constants: bytecode.Constants,
+		globals:   make([]data.Data, globalsLimit),
+		stack:     NewStack(stackLimit),
+		frames:    frames,
 	}
 }
 
+// NewWithGlobals creates a new VM instance with closure over a globals array (for persistance)
 func NewWithGlobals(bytecode *compiler.Bytecode, globals []data.Data) *VM {
-	return &VM{
-		instructions: bytecode.Instructions,
-		constants:    bytecode.Constants,
-		globals:      globals,
-		stack:        NewStack(2048),
-	}
+	vm := New(bytecode)
+	vm.globals = globals
+	return vm
 }
 
 // Result returns the value of the last popped element from the stack (last evaluated expression)
@@ -49,16 +56,24 @@ func (vm *VM) Result() data.Data {
 
 // Run executes every instruction given to the VM on creation
 func (vm *VM) Run() error {
-	for pointer := 0; pointer < len(vm.instructions); pointer++ {
-		op := operation.Opcode(vm.instructions[pointer])
+	var pointer int
+	var instructions operation.Instruction
+	var op operation.Opcode
+
+	for vm.frames.current().pointer < len(vm.frames.current().Instructions())-1 {
+		vm.frames.current().pointer++
+
+		pointer = vm.frames.current().pointer
+		instructions = vm.frames.current().Instructions()
+		op = operation.Opcode(instructions[pointer])
 
 		switch op {
 		case operation.Pop:
 			vm.stack.pop()
 
 		case operation.Constant:
-			constIndex := operation.ReadUint16(vm.instructions[pointer+1:])
-			pointer += 2
+			constIndex := operation.ReadUint16(instructions[pointer+1:])
+			vm.frames.current().pointer += 2
 
 			err := vm.stack.push(vm.constants[constIndex])
 			if err != nil {
@@ -102,15 +117,15 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.Jump:
-			pos := int(operation.ReadUint16(vm.instructions[pointer+1:]))
-			pointer = pos - 1
+			pos := int(operation.ReadUint16(instructions[pointer+1:]))
+			vm.frames.current().pointer = pos - 1
 
 		case operation.JumpNotTruthy:
-			pos := int(operation.ReadUint16(vm.instructions[pointer+1:]))
-			pointer += 2
+			pos := int(operation.ReadUint16(instructions[pointer+1:]))
+			vm.frames.current().pointer += 2
 			condition := vm.stack.pop()
 			if !isTruthy(condition) {
-				pointer = pos - 1
+				vm.frames.current().pointer = pos - 1
 			}
 
 		case operation.Null:
@@ -120,21 +135,21 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.SetGlobal:
-			index := operation.ReadUint16(vm.instructions[pointer+1:])
-			pointer += 2
+			index := operation.ReadUint16(instructions[pointer+1:])
+			vm.frames.current().pointer += 2
 			vm.globals[index] = vm.stack.pop()
 
 		case operation.GetGlobal:
-			index := operation.ReadUint16(vm.instructions[pointer+1:])
-			pointer += 2
+			index := operation.ReadUint16(instructions[pointer+1:])
+			vm.frames.current().pointer += 2
 			err := vm.stack.push(vm.globals[index])
 			if err != nil {
 				return err
 			}
 
 		case operation.Array:
-			numElements := int(operation.ReadUint16(vm.instructions[pointer+1:]))
-			pointer += 2
+			numElements := int(operation.ReadUint16(instructions[pointer+1:]))
+			vm.frames.current().pointer += 2
 			array := vm.buildArray(vm.stack.pointer-numElements, vm.stack.pointer)
 			vm.stack.pointer = vm.stack.pointer - numElements
 			err := vm.stack.push(array)
@@ -143,8 +158,8 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.Hash:
-			numElements := int(operation.ReadUint16(vm.instructions[pointer+1:]))
-			pointer += 2
+			numElements := int(operation.ReadUint16(instructions[pointer+1:]))
+			vm.frames.current().pointer += 2
 			hash, err := vm.buildHash(vm.stack.pointer-numElements, vm.stack.pointer)
 			if err != nil {
 				return err
