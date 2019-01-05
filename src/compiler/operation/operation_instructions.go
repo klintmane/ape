@@ -27,6 +27,7 @@ func NewInstruction(opcode Opcode, operands ...int) Instruction {
 	// Set position to point to the next element
 	instruction := make([]byte, instructionSize)
 	instruction[0] = byte(opcode)
+
 	position := 1
 
 	// For each operand
@@ -35,6 +36,9 @@ func NewInstruction(opcode Opcode, operands ...int) Instruction {
 		size := operation.OperandSizes[i]
 
 		switch size {
+		case 1:
+			// No magic required for 1-byte sized operands
+			instruction[position] = byte(operand)
 		case 2:
 			// Cast the operand to uint16 and put it onto the instruction array (in big-endian encoding)
 			binary.BigEndian.PutUint16(instruction[position:], uint16(operand))
@@ -44,6 +48,7 @@ func NewInstruction(opcode Opcode, operands ...int) Instruction {
 		position += size
 	}
 	return instruction
+
 }
 
 // ReadOperands take an operation and instructions and returns the operands and the position
@@ -56,6 +61,8 @@ func ReadOperands(operation *Operation, ins Instruction) ([]int, int) {
 	// Set the position to point to the next operand
 	for i, size := range operation.OperandSizes {
 		switch size {
+		case 1:
+			operands[i] = int(ReadUint8(ins[position:]))
 		case 2:
 			operands[i] = int(ReadUint16(ins[position:]))
 		}
@@ -68,3 +75,6 @@ func ReadOperands(operation *Operation, ins Instruction) ([]int, int) {
 func ReadUint16(ins Instruction) uint16 {
 	return binary.BigEndian.Uint16(ins)
 }
+
+// ReadUint8 returns the uint8 representation of an instruction
+func ReadUint8(ins Instruction) uint8 { return uint8(ins[0]) }

@@ -35,6 +35,8 @@ const (
 	// Variables
 	GetGlobal
 	SetGlobal
+	GetLocal
+	SetLocal
 
 	// Data Structures
 	Array

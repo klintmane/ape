@@ -38,8 +38,10 @@ var operations = map[Opcode]*Operation{
 	JumpNotTruthy: {"JumpNotTruthy", []int{2}}, // Jump if value on top of stack not truthy (to the given instruction)
 
 	// Variables
-	GetGlobal: {"Null", []int{2}}, // Get a Global variable definition (at the given index)
-	SetGlobal: {"Null", []int{2}}, // Set a Global variable definition (with the given value)
+	GetGlobal: {"GetGlobal", []int{2}}, // Get a Global variable definition (at the given index)
+	SetGlobal: {"GetGlobal", []int{2}}, // Set a Global variable definition (with the given value)
+	GetLocal:  {"GetLocal", []int{1}},  // Get a Local variable definition (at the given index)
+	SetLocal:  {"GetLocal", []int{1}},  // Set a Local variable definition (with the given value)
 
 	// Data Structures
 	Array: {"Array", []int{2}}, // Create an Array literal (with the given declaration)
