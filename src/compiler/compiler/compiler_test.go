@@ -480,6 +480,7 @@ func TestCompilerScopes(t *testing.T) {
 		t.Errorf("currentScope wrong. got=%d, want=%d", compiler.currentScope, 0)
 	}
 
+	globalSymbolTable := compiler.symbols
 	compiler.emit(operation.Mul)
 	compiler.enterScope()
 	if compiler.currentScope != 1 {
@@ -496,9 +497,21 @@ func TestCompilerScopes(t *testing.T) {
 		t.Errorf("emitted.Opcode wrong. got=%d, want=%d", last.Opcode, operation.Sub)
 	}
 
+	if compiler.symbols.Outer != globalSymbolTable {
+		t.Errorf("compiler did not enclose symbolTable")
+	}
+
 	compiler.leaveScope()
 	if compiler.currentScope != 0 {
 		t.Errorf("currentScope wrong. got=%d, want=%d", compiler.currentScope, 0)
+	}
+
+	if compiler.symbols != globalSymbolTable {
+		t.Errorf("compiler did not restore global symbol table")
+	}
+
+	if compiler.symbols.Outer != nil {
+		t.Errorf("compiler modified global symbol table incorrectly")
 	}
 
 	compiler.emit(operation.Add)
@@ -516,7 +529,6 @@ func TestCompilerScopes(t *testing.T) {
 		t.Errorf("prevEmitted.Opcode wrong. got=%d, want=%d", previous.Opcode, operation.Mul)
 	}
 }
-
 func TestFunctionCalls(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -551,6 +563,79 @@ func TestFunctionCalls(t *testing.T) {
 				operation.NewInstruction(operation.SetGlobal, 0),
 				operation.NewInstruction(operation.GetGlobal, 0),
 				operation.NewInstruction(operation.Call),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestLetStatementScopes(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+	let num = 55;
+	fn() { num }
+	`,
+			expectedConstants: []interface{}{
+				55,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetGlobal, 0),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+	fn() {
+	let num = 55;
+	num
+	}
+	`,
+			expectedConstants: []interface{}{
+				55,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0),
+					operation.NewInstruction(operation.SetLocal, 0),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+		fn() {
+		let a = 55;
+		let b = 77;
+		a + b
+		}
+		`,
+			expectedConstants: []interface{}{
+				55,
+				77,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0),
+					operation.NewInstruction(operation.SetLocal, 0),
+					operation.NewInstruction(operation.Constant, 1),
+					operation.NewInstruction(operation.SetLocal, 1),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.GetLocal, 1),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 2),
 				operation.NewInstruction(operation.Pop),
 			},
 		},

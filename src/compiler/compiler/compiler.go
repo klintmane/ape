@@ -238,15 +238,25 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
+
 		symbol := c.symbols.Define(node.Name.Value)
-		c.emit(operation.SetGlobal, symbol.Index)
+		if symbol.Scope == symbols.GlobalScope {
+			c.emit(operation.SetGlobal, symbol.Index)
+		} else {
+			c.emit(operation.SetLocal, symbol.Index)
+		}
 
 	case *ast.Identifier:
 		symbol, ok := c.symbols.Resolve(node.Value)
 		if !ok {
 			return fmt.Errorf("Variable %s is undefined", node.Value)
 		}
-		c.emit(operation.GetGlobal, symbol.Index)
+
+		if symbol.Scope == symbols.GlobalScope {
+			c.emit(operation.GetGlobal, symbol.Index)
+		} else {
+			c.emit(operation.GetLocal, symbol.Index)
+		}
 
 	case *ast.BlockStatement:
 		for _, s := range node.Statements {
@@ -261,7 +271,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 		err := c.Compile(node.Body)
 		if err != nil {
 			return err
-
 		}
 
 		// If a pop was emitted, replace it with a return value (implicit return)
@@ -390,6 +399,7 @@ func (c *Compiler) enterScope() {
 	}
 	c.scopes = append(c.scopes, scope)
 	c.currentScope++
+	c.symbols = symbols.NewEnclosed(c.symbols)
 }
 
 // Returns the instructions in the current compiler scope and switches to the previous compilation scope
@@ -397,5 +407,7 @@ func (c *Compiler) leaveScope() operation.Instruction {
 	instructions := c.currentInstructions()
 	c.scopes = c.scopes[:len(c.scopes)-1]
 	c.currentScope--
+	c.symbols = c.symbols.Outer
+
 	return instructions
 }
