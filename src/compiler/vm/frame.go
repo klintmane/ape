@@ -5,10 +5,11 @@ import (
 	"github.com/ape-lang/ape/src/data"
 )
 
-// Frame consists of a reference to a compiled function and an instruction pointer
+// Frame consists of a reference to a compiled function, an instruction pointer and a pointer to the base frame
 type Frame struct {
-	fn      *data.CompiledFunction
-	pointer int
+	fn           *data.CompiledFunction
+	pointer      int
+	framePointer int
 }
 
 type Frames struct {
@@ -17,8 +18,8 @@ type Frames struct {
 }
 
 // NewFrame creates a new frame for a given function
-func NewFrame(fn *data.CompiledFunction) *Frame {
-	return &Frame{fn: fn, pointer: -1}
+func NewFrame(fn *data.CompiledFunction, framePointer int) *Frame {
+	return &Frame{fn: fn, pointer: -1, framePointer: framePointer}
 }
 
 // NewFrames creates a collection of Frames

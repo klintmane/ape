@@ -16,7 +16,7 @@ type Symbol struct {
 type SymbolTable struct {
 	Outer           *SymbolTable
 	store           map[string]Symbol
-	definitionCount int
+	DefinitionCount int
 }
 
 func New() *SymbolTable {
@@ -31,7 +31,7 @@ func NewEnclosed(outer *SymbolTable) *SymbolTable {
 }
 
 func (s *SymbolTable) Define(name string) Symbol {
-	symbol := Symbol{Name: name, Index: s.definitionCount, Scope: GlobalScope}
+	symbol := Symbol{Name: name, Index: s.DefinitionCount, Scope: GlobalScope}
 
 	if s.Outer == nil {
 		symbol.Scope = GlobalScope
@@ -40,7 +40,7 @@ func (s *SymbolTable) Define(name string) Symbol {
 	}
 
 	s.store[name] = symbol
-	s.definitionCount++
+	s.DefinitionCount++
 	return symbol
 }
 

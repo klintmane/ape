@@ -283,8 +283,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(operation.Return)
 		}
 
+		localCount := c.symbols.DefinitionCount
 		instructions := c.leaveScope()
-		compiled := &data.CompiledFunction{Instructions: instructions}
+
+		compiled := &data.CompiledFunction{Instructions: instructions, LocalCount: localCount}
 		c.emit(operation.Constant, c.addConstant(compiled))
 
 	case *ast.ReturnStatement:

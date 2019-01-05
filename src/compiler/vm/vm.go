@@ -31,7 +31,7 @@ type VM struct {
 func New(bytecode *compiler.Bytecode) *VM {
 	// create an execution frame for the main function
 	mainFn := &data.CompiledFunction{Instructions: bytecode.Instructions}
-	mainFrame := NewFrame(mainFn)
+	mainFrame := NewFrame(mainFn, 0)
 
 	frames := NewFrames(frameLimit)
 	frames.push(mainFrame)
@@ -149,6 +149,21 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case operation.SetLocal:
+			localIndex := operation.ReadUint8(instructions[pointer+1:])
+			vm.frames.current().pointer++
+			frame := vm.frames.current()
+			vm.stack.items[frame.framePointer+int(localIndex)] = vm.stack.pop()
+
+		case operation.GetLocal:
+			localIndex := operation.ReadUint8(instructions[pointer+1:])
+			vm.frames.current().pointer++
+			frame := vm.frames.current()
+			err := vm.stack.push(vm.stack.items[frame.framePointer+int(localIndex)])
+			if err != nil {
+				return err
+			}
+
 		case operation.Array:
 			numElements := int(operation.ReadUint16(instructions[pointer+1:]))
 			vm.frames.current().pointer += 2
@@ -185,21 +200,22 @@ func (vm *VM) Run() error {
 			if !ok {
 				return fmt.Errorf("calling non-function")
 			}
-			frame := NewFrame(fn)
+			frame := NewFrame(fn, vm.stack.pointer)
 			vm.frames.push(frame)
+			vm.stack.pointer = frame.framePointer + fn.LocalCount
 
 		case operation.ReturnValue:
 			value := vm.stack.pop()
-			vm.frames.pop()
-			vm.stack.pop()
+			frame := vm.frames.pop()
+			vm.stack.pointer = frame.framePointer - 1
 			err := vm.stack.push(value)
 			if err != nil {
 				return err
 			}
 
 		case operation.Return:
-			vm.frames.pop()
-			vm.stack.pop()
+			frame := vm.frames.pop()
+			vm.stack.pointer = frame.framePointer - 1
 			err := vm.stack.push(NULL)
 			if err != nil {
 				return err
