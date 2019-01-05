@@ -517,6 +517,47 @@ func TestCompilerScopes(t *testing.T) {
 	}
 }
 
+func TestFunctionCalls(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `fn() { 26 }();`,
+			expectedConstants: []interface{}{
+				26,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0), // 26
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
+				operation.NewInstruction(operation.Call),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+	let noArg = fn() { 26 };
+	noArg();
+	`,
+			expectedConstants: []interface{}{
+				26,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0), // 26
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Call),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {

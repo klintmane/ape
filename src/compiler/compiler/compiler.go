@@ -284,6 +284,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		c.emit(operation.ReturnValue)
+
+	case *ast.CallExpression:
+		err := c.Compile(node.Function)
+		if err != nil {
+			return err
+		}
+		c.emit(operation.Call)
+
 	}
 
 	return nil
@@ -384,7 +392,7 @@ func (c *Compiler) enterScope() {
 	c.currentScope++
 }
 
-// Returns to the previous compilation scope
+// Returns the instructions in the current compiler scope and switches to the previous compilation scope
 func (c *Compiler) leaveScope() operation.Instruction {
 	instructions := c.currentInstructions()
 	c.scopes = c.scopes[:len(c.scopes)-1]
