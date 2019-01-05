@@ -1,10 +1,11 @@
 package main
 
 import (
-	"ape/src/compiler/repl"
 	"fmt"
 	"os"
 	"os/user"
+
+	"github.com/ape-lang/ape/src/compiler/repl"
 )
 
 func main() {

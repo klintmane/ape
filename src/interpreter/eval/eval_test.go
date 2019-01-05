@@ -1,10 +1,11 @@
 package eval
 
 import (
-	"ape/src/data"
-	"ape/src/lexer"
-	"ape/src/parser"
 	"testing"
+
+	"github.com/ape-lang/ape/src/data"
+	"github.com/ape-lang/ape/src/lexer"
+	"github.com/ape-lang/ape/src/parser"
 )
 
 func TestEvalIntegerExpression(t *testing.T) {

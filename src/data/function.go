@@ -1,8 +1,9 @@
 package data
 
 import (
-	"ape/src/ast"
 	"strings"
+
+	"github.com/ape-lang/ape/src/ast"
 )
 
 type Function struct {

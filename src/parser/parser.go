@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"ape/src/ast"
-	"ape/src/lexer"
-	"ape/src/token"
 	"fmt"
+
+	"github.com/ape-lang/ape/src/ast"
+	"github.com/ape-lang/ape/src/lexer"
+	"github.com/ape-lang/ape/src/token"
 )
 
 type (

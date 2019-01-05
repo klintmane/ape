@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"ape/src/token"
 	"strings"
+
+	"github.com/ape-lang/ape/src/token"
 )
 
 type FunctionLiteral struct {

@@ -1,7 +1,7 @@
 package eval
 
 import (
-	"ape/src/data"
+	"github.com/ape-lang/ape/src/data"
 )
 
 func evalPrefixExpression(operator string, right data.Data) data.Data {

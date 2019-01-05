@@ -1,8 +1,8 @@
 package eval
 
 import (
-	"ape/src/ast"
-	"ape/src/data"
+	"github.com/ape-lang/ape/src/ast"
+	"github.com/ape-lang/ape/src/data"
 )
 
 func evalHashLiteral(node *ast.HashLiteral, env *data.Environment) data.Data {

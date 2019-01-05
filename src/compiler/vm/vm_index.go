@@ -1,8 +1,9 @@
 package vm
 
 import (
-	"ape/src/data"
 	"fmt"
+
+	"github.com/ape-lang/ape/src/data"
 )
 
 func (vm *VM) executeIndexExpr(left, index data.Data) error {

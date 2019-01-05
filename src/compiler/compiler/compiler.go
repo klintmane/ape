@@ -1,12 +1,13 @@
 package compiler
 
 import (
-	"ape/src/ast"
-	"ape/src/compiler/operation"
-	"ape/src/compiler/symbols"
-	"ape/src/data"
 	"fmt"
 	"sort"
+
+	"github.com/ape-lang/ape/src/ast"
+	"github.com/ape-lang/ape/src/compiler/operation"
+	"github.com/ape-lang/ape/src/compiler/symbols"
+	"github.com/ape-lang/ape/src/data"
 )
 
 // Bytecode contains the instructions and constants the compiler generated and evaluated

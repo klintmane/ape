@@ -1,15 +1,16 @@
 package repl
 
 import (
-	"ape/src/compiler/compiler"
-	"ape/src/compiler/symbols"
-	"ape/src/compiler/vm"
-	"ape/src/data"
-	"ape/src/lexer"
-	"ape/src/parser"
 	"bufio"
 	"fmt"
 	"io"
+
+	"github.com/ape-lang/ape/src/compiler/compiler"
+	"github.com/ape-lang/ape/src/compiler/symbols"
+	"github.com/ape-lang/ape/src/compiler/vm"
+	"github.com/ape-lang/ape/src/data"
+	"github.com/ape-lang/ape/src/lexer"
+	"github.com/ape-lang/ape/src/parser"
 )
 
 func Start(in io.Reader, out io.Writer) {

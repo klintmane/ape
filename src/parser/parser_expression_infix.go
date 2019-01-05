@@ -1,6 +1,6 @@
 package parser
 
-import "ape/src/ast"
+import "github.com/ape-lang/ape/src/ast"
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expression := &ast.InfixExpression{

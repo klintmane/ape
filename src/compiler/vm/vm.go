@@ -1,9 +1,9 @@
 package vm
 
 import (
-	"ape/src/compiler/compiler"
-	"ape/src/compiler/operation"
-	"ape/src/data"
+	"github.com/ape-lang/ape/src/compiler/compiler"
+	"github.com/ape-lang/ape/src/compiler/operation"
+	"github.com/ape-lang/ape/src/data"
 )
 
 const GLOBALS_SIZE = 65536 // size of an operand

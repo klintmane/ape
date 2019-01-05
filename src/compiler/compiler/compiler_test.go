@@ -1,13 +1,14 @@
 package compiler
 
 import (
-	"ape/src/ast"
-	"ape/src/compiler/operation"
-	"ape/src/data"
-	"ape/src/lexer"
-	"ape/src/parser"
 	"fmt"
 	"testing"
+
+	"github.com/ape-lang/ape/src/ast"
+	"github.com/ape-lang/ape/src/compiler/operation"
+	"github.com/ape-lang/ape/src/data"
+	"github.com/ape-lang/ape/src/lexer"
+	"github.com/ape-lang/ape/src/parser"
 )
 
 type compilerTestCase struct {

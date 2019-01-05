@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"ape/src/token"
+	"github.com/ape-lang/ape/src/token"
 )
 
 func TestNextToken(t *testing.T) {

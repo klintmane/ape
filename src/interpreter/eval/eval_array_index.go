@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/data"
+import "github.com/ape-lang/ape/src/data"
 
 func evalArrayIndexExpression(array, index data.Data) data.Data {
 	arrayData := array.(*data.Array)

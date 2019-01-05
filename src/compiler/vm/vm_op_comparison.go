@@ -1,9 +1,10 @@
 package vm
 
 import (
-	"ape/src/compiler/operation"
-	"ape/src/data"
 	"fmt"
+
+	"github.com/ape-lang/ape/src/compiler/operation"
+	"github.com/ape-lang/ape/src/data"
 )
 
 func (vm *VM) executeComparison(op operation.Opcode) error {

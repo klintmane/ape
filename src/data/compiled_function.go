@@ -1,8 +1,9 @@
 package data
 
 import (
-	"ape/src/compiler/operation"
 	"fmt"
+
+	"github.com/ape-lang/ape/src/compiler/operation"
 )
 
 type CompiledFunction struct {

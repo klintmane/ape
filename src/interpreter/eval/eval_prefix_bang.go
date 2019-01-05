@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/data"
+import "github.com/ape-lang/ape/src/data"
 
 func evalBangOperatorExpression(right data.Data) data.Data {
 	switch right {

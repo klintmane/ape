@@ -1,6 +1,6 @@
 package ast
 
-import "ape/src/token"
+import "github.com/ape-lang/ape/src/token"
 
 type StringLiteral struct {
 	Token token.Token

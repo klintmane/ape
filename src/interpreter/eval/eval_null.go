@@ -1,6 +1,6 @@
 package eval
 
-import "ape/src/data"
+import "github.com/ape-lang/ape/src/data"
 
 // Global references, so a new object does not get allocated for each evaluation
 var (

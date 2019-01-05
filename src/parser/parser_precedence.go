@@ -1,6 +1,6 @@
 package parser
 
-import "ape/src/token"
+import "github.com/ape-lang/ape/src/token"
 
 // Operators listed by lower precedence
 const (

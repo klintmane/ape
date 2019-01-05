@@ -1,8 +1,9 @@
 package vm
 
 import (
-	"ape/src/data"
 	"fmt"
+
+	"github.com/ape-lang/ape/src/data"
 )
 
 // Stack contains the definition of the VM stack

@@ -1,9 +1,10 @@
 package parser
 
 import (
-	"ape/src/ast"
 	"fmt"
 	"strconv"
+
+	"github.com/ape-lang/ape/src/ast"
 )
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {

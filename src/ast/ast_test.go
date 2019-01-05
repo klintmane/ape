@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"ape/src/token"
 	"testing"
+
+	"github.com/ape-lang/ape/src/token"
 )
 
 func TestString(t *testing.T) {

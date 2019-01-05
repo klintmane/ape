@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"ape/src/ast"
-	"ape/src/lexer"
 	"fmt"
 	"testing"
+
+	"github.com/ape-lang/ape/src/ast"
+	"github.com/ape-lang/ape/src/lexer"
 )
 
 func TestLetStatements(t *testing.T) {

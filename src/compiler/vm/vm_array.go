@@ -1,6 +1,6 @@
 package vm
 
-import "ape/src/data"
+import "github.com/ape-lang/ape/src/data"
 
 func (vm *VM) buildArray(startIndex, endIndex int) data.Data {
 	elements := make([]data.Data, endIndex-startIndex)

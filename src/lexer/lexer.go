@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"ape/src/token"
+	"github.com/ape-lang/ape/src/token"
 )
 
 type Lexer struct {
