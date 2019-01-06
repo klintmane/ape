@@ -153,6 +153,16 @@ func testExpectedData(t *testing.T, expected interface{}, actual data.Data) {
 				t.Errorf("testIntegerData failed: %s", err)
 			}
 		}
+
+	case *data.Error:
+		err, ok := actual.(*data.Error)
+		if !ok {
+			t.Errorf("object is not Error: %T (%+v)", actual, actual)
+			return
+		}
+		if err.Message != expected.Message {
+			t.Errorf("wrong error message. expected=%q, got=%q", expected.Message, err.Message)
+		}
 	}
 }
 
@@ -302,25 +312,25 @@ func TestCallingFunctionsWithoutArguments(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
-	let eleven = fn() { 6 + 5; };
-	eleven();
-	`,
+				let eleven = fn() { 6 + 5; };
+				eleven();
+			`,
 			expected: 11,
 		},
 		{
 			input: `
-			let one = fn() { 1; };
-			let two = fn() { 2; };
-			one() + two()
+				let one = fn() { 1; };
+				let two = fn() { 2; };
+				one() + two()
 			`,
 			expected: 3,
 		},
 		{
 			input: `
-			let a = fn() { 1 };
-			let b = fn() { a() + 1 };
-			let c = fn() { b() + 1 };
-			c();
+				let a = fn() { 1 };
+				let b = fn() { a() + 1 };
+				let c = fn() { b() + 1 };
+				c();
 			`,
 			expected: 3,
 		},
@@ -332,16 +342,16 @@ func TestFunctionsWithReturnStatement(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
-	let earlyReturn = fn() { return 99; 100; };
-	earlyReturn();
-	`,
+				let earlyReturn = fn() { return 99; 100; };
+				earlyReturn();
+			`,
 			expected: 99,
 		},
 		{
 			input: `
-	let earlyReturn = fn() { return 99; return 100; };
-	earlyReturn();
-`,
+				let earlyReturn = fn() { return 99; return 100; };
+				earlyReturn();
+			`,
 			expected: 99,
 		},
 	}
@@ -352,18 +362,18 @@ func TestFunctionsWithoutReturnValue(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
-	let noReturn = fn() { };
-	noReturn();
-	`,
+				let noReturn = fn() { };
+				noReturn();
+			`,
 			expected: data.NULL,
 		},
 		{
 			input: `
-	let noReturn = fn() { };
-	let noReturnTwo = fn() { noReturn(); };
-	noReturn();
-	noReturnTwo();
-	`,
+				let noReturn = fn() { };
+				let noReturnTwo = fn() { noReturn(); };
+				noReturn();
+				noReturnTwo();
+			`,
 			expected: data.NULL,
 		},
 	}
@@ -374,10 +384,10 @@ func TestFirstClassFunctions(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
-	let returnsOne = fn() { 1; };
-	let returnsOneReturner = fn() { returnsOne; };
-returnsOneReturner()();
-`,
+				let returnsOne = fn() { 1; };
+				let returnsOneReturner = fn() { returnsOne; };
+				returnsOneReturner()();
+			`,
 			expected: 1,
 		},
 		{
@@ -398,47 +408,47 @@ func TestCallingFunctionsWithBindings(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
-	let one = fn() { let one = 1; one };
-	one();
-	`,
+				let one = fn() { let one = 1; one };
+				one();
+			`,
 			expected: 1,
 		},
 		{
 			input: `
-	let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
-	oneAndTwo();
-	`,
+				let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+				oneAndTwo();
+			`,
 			expected: 3,
 		},
 		{
 			input: `
-	let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
-	let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
-	oneAndTwo() + threeAndFour();
-	`,
+				let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+				let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
+				oneAndTwo() + threeAndFour();
+			`,
 			expected: 10,
 		},
 		{
 			input: `
-		let firstFoobar = fn() { let foobar = 50; foobar; };
-		let secondFoobar = fn() { let foobar = 100; foobar; };
-		firstFoobar() + secondFoobar();
-		`,
+				let firstFoobar = fn() { let foobar = 50; foobar; };
+				let secondFoobar = fn() { let foobar = 100; foobar; };
+				firstFoobar() + secondFoobar();
+			`,
 			expected: 150,
 		},
 		{
 			input: `
-		let globalSeed = 50;
-		let minusOne = fn() {
-		let num = 1;
-		globalSeed - num;
-		}
-		let minusTwo = fn() {
-		let num = 2;
-		globalSeed - num;
-		}
-		minusOne() + minusTwo();
-		`,
+				let globalSeed = 50;
+				let minusOne = fn() {
+					let num = 1;
+					globalSeed - num;
+				}
+				let minusTwo = fn() {
+					let num = 2;
+					globalSeed - num;
+				}
+				minusOne() + minusTwo();
+			`,
 			expected: 97,
 		},
 	}
@@ -546,4 +556,39 @@ func TestCallingFunctionsWithWrongArguments(t *testing.T) {
 			t.Fatalf("wrong VM error: want=%q, got=%q", tt.expected, err)
 		}
 	}
+}
+
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []vmTestCase{
+		{`len("")`, 0},
+		{`len("four")`, 4},
+		{`len("hello world")`, 11},
+		{
+			`len(1)`,
+			&data.Error{Message: "argument to 'len' not supported, got INTEGER"},
+		},
+		{`len("one", "two")`,
+			&data.Error{Message: "wrong number of arguments. got=2, want=1"},
+		},
+		{`len([1, 2, 3])`, 3},
+		{`len([])`, 0},
+		{`print("hello", "world!")`, data.NULL},
+		{`head([1, 2, 3])`, 1},
+		{`head([])`, data.NULL},
+		{`head(1)`,
+			&data.Error{Message: "argument to 'first' must be ARRAY, got INTEGER"},
+		},
+		{`last([1, 2, 3])`, 3},
+		{`last([])`, data.NULL},
+		{`last(1)`,
+			&data.Error{Message: "argument to 'last' must be ARRAY, got INTEGER"},
+		},
+		{`tail([1, 2, 3])`, []int{2, 3}},
+		{`tail([])`, data.NULL},
+		{`push([], 1)`, []int{1}},
+		{`push(1, 1)`,
+			&data.Error{Message: "argument to 'push' must be ARRAY, got INTEGER"},
+		},
+	}
+	runVMTests(t, tests)
 }

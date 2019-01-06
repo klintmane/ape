@@ -19,6 +19,9 @@ func Start(in io.Reader, out io.Writer) {
 	constants := []data.Data{}
 	globals := make([]data.Data, vm.GlobalsLimit)
 	symbols := symbols.New()
+	for i, v := range data.Builtins {
+		symbols.DefineBuiltin(i, v.Name)
+	}
 
 	for {
 		prompt()

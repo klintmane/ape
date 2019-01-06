@@ -193,7 +193,7 @@ func (vm *VM) Run() error {
 			argCount := operation.ReadUint8(instructions[pointer+1:])
 			vm.frames.current().pointer++
 
-			err := vm.callFn(int(argCount))
+			err := vm.executeCall(int(argCount))
 			if err != nil {
 				return err
 			}
@@ -214,6 +214,15 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.GetBuiltin:
+			builtinIndex := operation.ReadUint8(instructions[pointer+1:])
+			vm.frames.current().pointer++
+			builtin := data.Builtins[builtinIndex]
+			err := vm.stack.push(builtin.Definition)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -230,21 +239,41 @@ func isTruthy(d data.Data) bool {
 	}
 }
 
-func (vm *VM) callFn(argCount int) error {
-	// Get the function, by offseting the arguments
-	fn, ok := vm.stack.items[vm.stack.pointer-1-argCount].(*data.CompiledFunction)
-	if !ok {
-		return fmt.Errorf("calling non-function")
-	}
+func (vm *VM) executeCall(argCount int) error {
+	callee := vm.stack.items[vm.stack.pointer-1-argCount]
 
+	switch callee := callee.(type) {
+	case *data.CompiledFunction:
+		return vm.callFn(callee, argCount)
+
+	case *data.Builtin:
+		return vm.callBuiltin(callee, argCount)
+
+	default:
+		return fmt.Errorf("calling non-function and non-built-in")
+	}
+}
+
+func (vm *VM) callFn(fn *data.CompiledFunction, argCount int) error {
 	if argCount != fn.ParamCount {
 		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.ParamCount, argCount)
 	}
 
-	// Create a new frame for the function
 	frame := NewFrame(fn, vm.stack.pointer-argCount)
 	vm.frames.push(frame)
 	vm.stack.pointer = frame.framePointer + fn.LocalCount
+	return nil
+}
 
+func (vm *VM) callBuiltin(builtin *data.Builtin, argCount int) error {
+	args := vm.stack.items[vm.stack.pointer-argCount : vm.stack.pointer]
+	result := builtin.Fn(args...)
+	vm.stack.pointer = vm.stack.pointer - argCount - 1
+
+	if result != nil {
+		vm.stack.push(result)
+	} else {
+		vm.stack.push(data.NULL)
+	}
 	return nil
 }
