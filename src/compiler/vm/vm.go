@@ -227,10 +227,18 @@ func (vm *VM) Run() error {
 
 		case operation.Closure:
 			constIndex := operation.ReadUint16(instructions[pointer+1:])
-			_ = operation.ReadUint8(instructions[pointer+3:])
+			freeCount := operation.ReadUint8(instructions[pointer+3:])
 			vm.frames.current().pointer += 3
+			err := vm.pushClosure(int(constIndex), int(freeCount))
+			if err != nil {
+				return err
+			}
 
-			err := vm.pushClosure(int(constIndex))
+		case operation.GetFree:
+			freeIndex := operation.ReadUint8(instructions[pointer+1:])
+			vm.frames.current().pointer++
+			currentClosure := vm.frames.current().closure
+			err := vm.stack.push(currentClosure.Free[freeIndex])
 			if err != nil {
 				return err
 			}
@@ -289,12 +297,19 @@ func (vm *VM) callBuiltin(builtin *data.Builtin, argCount int) error {
 	return nil
 }
 
-func (vm *VM) pushClosure(constIndex int) error {
+func (vm *VM) pushClosure(constIndex int, freeCount int) error {
 	constant := vm.constants[constIndex]
 	function, ok := constant.(*data.CompiledFunction)
 	if !ok {
 		return fmt.Errorf("not a function: %+v", constant)
 	}
-	closure := &data.Closure{Fn: function}
+
+	free := make([]data.Data, freeCount)
+	for i := 0; i < freeCount; i++ {
+		free[i] = vm.stack.items[vm.stack.pointer-freeCount+i]
+	}
+
+	vm.stack.pointer = vm.stack.pointer - freeCount
+	closure := &data.Closure{Fn: function, Free: free}
 	return vm.stack.push(closure)
 }
