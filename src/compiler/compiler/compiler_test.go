@@ -435,23 +435,23 @@ func TestFunctions(t *testing.T) {
 				operation.NewInstruction(operation.Pop),
 			},
 		},
-		// {
-		// 	input: `fn() { 5 + 10 }`,
-		// 	expectedConstants: []interface{}{
-		// 		5,
-		// 		10,
-		// 		[]operation.Instruction{
-		// 			operation.NewInstruction(operation.Constant, 0),
-		// 			operation.NewInstruction(operation.Constant, 1),
-		// 			operation.NewInstruction(operation.Add),
-		// 			operation.NewInstruction(operation.ReturnValue),
-		// 		},
-		// 	},
-		// 	expectedInstructions: []operation.Instruction{
-		// 		operation.NewInstruction(operation.Closure, 2, 0),
-		// 		operation.NewInstruction(operation.Pop),
-		// 	},
-		// },
+		{
+			input: `fn() { 5 + 10 }`,
+			expectedConstants: []interface{}{
+				5,
+				10,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 0),
+					operation.NewInstruction(operation.Constant, 1),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Closure, 2, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
 		{
 			input: `fn() { 1; 2 }`,
 			expectedConstants: []interface{}{
