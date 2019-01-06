@@ -49,7 +49,7 @@ func (vm *VM) executeIntegerComparison(op operation.Opcode, left, right data.Dat
 
 func (vm *VM) executeBoolean(val bool) error {
 	if val {
-		return vm.stack.push(TRUE)
+		return vm.stack.push(data.TRUE)
 	}
-	return vm.stack.push(FALSE)
+	return vm.stack.push(data.FALSE)
 }

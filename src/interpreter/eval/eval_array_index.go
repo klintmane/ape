@@ -8,7 +8,7 @@ func evalArrayIndexExpression(array, index data.Data) data.Data {
 	max := int64(len(arrayData.Elements) - 1)
 
 	if i < 0 || i > max {
-		return NULL
+		return data.NULL
 	}
 
 	return arrayData.Elements[i]

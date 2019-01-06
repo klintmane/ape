@@ -4,13 +4,13 @@ import "github.com/ape-lang/ape/src/data"
 
 func evalBangOperatorExpression(right data.Data) data.Data {
 	switch right {
-	case TRUE:
-		return FALSE
-	case FALSE:
-		return TRUE
-	case NULL:
-		return TRUE
+	case data.TRUE:
+		return data.FALSE
+	case data.FALSE:
+		return data.TRUE
+	case data.NULL:
+		return data.TRUE
 	default:
-		return FALSE
+		return data.FALSE
 	}
 }

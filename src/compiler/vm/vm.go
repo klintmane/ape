@@ -12,13 +12,6 @@ const GlobalsLimit = 65536 // equal to the max value represented by uint16 (oper
 const StackLimit = 2048
 const FrameLimit = 1024
 
-// Global references, so a new object does not get allocated for each evaluation
-var (
-	TRUE  = &data.Boolean{Value: true}
-	FALSE = &data.Boolean{Value: false}
-	NULL  = &data.Null{}
-)
-
 // VM contains the definition of the VM
 type VM struct {
 	constants []data.Data
@@ -83,13 +76,13 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.True:
-			err := vm.stack.push(TRUE)
+			err := vm.stack.push(data.TRUE)
 			if err != nil {
 				return err
 			}
 
 		case operation.False:
-			err := vm.stack.push(FALSE)
+			err := vm.stack.push(data.FALSE)
 			if err != nil {
 				return err
 			}
@@ -131,7 +124,7 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.Null:
-			err := vm.stack.push(NULL)
+			err := vm.stack.push(data.NULL)
 			if err != nil {
 				return err
 			}
@@ -217,7 +210,7 @@ func (vm *VM) Run() error {
 		case operation.Return:
 			frame := vm.frames.pop()
 			vm.stack.pointer = frame.framePointer - 1
-			err := vm.stack.push(NULL)
+			err := vm.stack.push(data.NULL)
 			if err != nil {
 				return err
 			}

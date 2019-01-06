@@ -16,6 +16,13 @@ const (
 	COMPILED_FUNCTION_TYPE = "COMPILED_TYPE"
 )
 
+// Global references, so a new object does not get allocated for each evaluation
+var (
+	TRUE  = &Boolean{Value: true}
+	FALSE = &Boolean{Value: false}
+	NULL  = &Null{}
+)
+
 type DataType string
 
 type Data interface {

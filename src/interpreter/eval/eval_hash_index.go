@@ -12,7 +12,7 @@ func evalHashIndexExpression(hash, index data.Data) data.Data {
 
 	pair, ok := hashData.Pairs[data.HashData(key)]
 	if !ok {
-		return NULL
+		return data.NULL
 	}
 
 	return pair.Value

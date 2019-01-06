@@ -382,8 +382,8 @@ func TestHashLiterals(t *testing.T) {
 		data.HashData(&data.String{Value: "two"}):   2,
 		data.HashData(&data.String{Value: "three"}): 3,
 		data.HashData(&data.Integer{Value: 4}):      4,
-		data.HashData(TRUE):                         5,
-		data.HashData(FALSE):                        6,
+		data.HashData(data.TRUE):                    5,
+		data.HashData(data.FALSE):                   6,
 	}
 
 	if len(result.Pairs) != len(expected) {
@@ -466,7 +466,7 @@ func testBooleanData(t *testing.T, d data.Data, expected bool) bool {
 }
 
 func testNullData(t *testing.T, d data.Data) bool {
-	if d != NULL {
+	if d != data.NULL {
 		t.Errorf("Expected Data to be Null, got %T (%+v)", d, d)
 		return false
 	}

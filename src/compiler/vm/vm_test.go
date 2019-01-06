@@ -104,7 +104,7 @@ func testExpectedData(t *testing.T, expected interface{}, actual data.Data) {
 		}
 
 	case *data.Null:
-		if actual != NULL {
+		if actual != data.NULL {
 			t.Errorf("data is not Null: %T (%+v)", actual, actual)
 		}
 
@@ -222,8 +222,8 @@ func TestConditionals(t *testing.T) {
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1 < 2) { 10 } else { 20 }", 10},
 		{"if (1 > 2) { 10 } else { 20 }", 20},
-		{"if (1 > 2) { 10 }", NULL},
-		{"if (false) { 10 }", NULL},
+		{"if (1 > 2) { 10 }", data.NULL},
+		{"if (false) { 10 }", data.NULL},
 		{"if ((if (false) { 10 })) { 10 } else { 20 }", 20},
 	}
 
@@ -287,13 +287,13 @@ func TestIndexExpressions(t *testing.T) {
 		{"[1, 2, 3][1]", 2},
 		{"[1, 2, 3][0 + 2]", 3},
 		{"[[1, 1, 1]][0][0]", 1},
-		{"[][0]", NULL},
-		{"[1, 2, 3][99]", NULL},
-		{"[1][-1]", NULL},
+		{"[][0]", data.NULL},
+		{"[1, 2, 3][99]", data.NULL},
+		{"[1][-1]", data.NULL},
 		{"{1: 1, 2: 2}[1]", 1},
 		{"{1: 1, 2: 2}[2]", 2},
-		{"{1: 1}[0]", NULL},
-		{"{}[0]", NULL},
+		{"{1: 1}[0]", data.NULL},
+		{"{}[0]", data.NULL},
 	}
 	runVMTests(t, tests)
 }
@@ -355,7 +355,7 @@ func TestFunctionsWithoutReturnValue(t *testing.T) {
 	let noReturn = fn() { };
 	noReturn();
 	`,
-			expected: NULL,
+			expected: data.NULL,
 		},
 		{
 			input: `
@@ -364,7 +364,7 @@ func TestFunctionsWithoutReturnValue(t *testing.T) {
 	noReturn();
 	noReturnTwo();
 	`,
-			expected: NULL,
+			expected: data.NULL,
 		},
 	}
 	runVMTests(t, tests)

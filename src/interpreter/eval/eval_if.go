@@ -17,17 +17,17 @@ func evalIfExpression(ie *ast.IfExpression, env *data.Environment) data.Data {
 	} else if ie.Alternate != nil {
 		return Eval(ie.Alternate, env)
 	} else {
-		return NULL
+		return data.NULL
 	}
 }
 
 func isTruthy(d data.Data) bool {
 	switch d {
-	case NULL:
+	case data.NULL:
 		return false
-	case TRUE:
+	case data.TRUE:
 		return true
-	case FALSE:
+	case data.FALSE:
 		return false
 	default:
 		return true
