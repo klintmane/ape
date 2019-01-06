@@ -94,6 +94,22 @@ Currently the only editor supporting Ape is the one I am using for developing it
 
 This project requires zero external dependencies, except the Go language compiler if you ever want to build it.
 
+## Benchmark
+
+#### Compiling the benchmark util
+
+`go build -o benchmark.out ./benchmark`
+
+#### Running benchmarks
+
+##### compiler + vm
+
+`./benchmark.out`
+
+##### interpreter
+
+`./benchmark.out -engine=eval`
+
 ## Contributing
 
 As this language is still being actively designed and developed, contribution would not be practical. That said, fixes and improvements are always welcome.
