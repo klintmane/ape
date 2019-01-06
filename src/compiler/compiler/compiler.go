@@ -239,12 +239,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.changeOperand(jumpPos, afterAlternatePos)
 
 	case *ast.LetStatement:
+		symbol := c.symbols.Define(node.Name.Value)
 		err := c.Compile(node.Value)
 		if err != nil {
 			return err
 		}
 
-		symbol := c.symbols.Define(node.Name.Value)
 		if symbol.Scope == symbols.GlobalScope {
 			c.emit(operation.SetGlobal, symbol.Index)
 		} else {
