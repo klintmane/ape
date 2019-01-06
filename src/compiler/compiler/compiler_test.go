@@ -737,6 +737,45 @@ func TestLetStatementScopes(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestBuiltins(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				len([]);
+				push([], 1);
+			`,
+			expectedConstants: []interface{}{1},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.GetBuiltin, 0),
+				operation.NewInstruction(operation.Array, 0),
+				operation.NewInstruction(operation.Call, 1),
+				operation.NewInstruction(operation.Pop),
+				operation.NewInstruction(operation.GetBuiltin, 4),
+				operation.NewInstruction(operation.Array, 0),
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Call, 2),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `fn() { len([]) }`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetBuiltin, 0),
+					operation.NewInstruction(operation.Array, 0),
+					operation.NewInstruction(operation.Call, 1),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {

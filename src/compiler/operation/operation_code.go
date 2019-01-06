@@ -47,4 +47,7 @@ const (
 	Call
 	Return
 	ReturnValue
+
+	// Builtins
+	GetBuiltin
 )

@@ -45,9 +45,14 @@ func New() *Compiler {
 		prevEmitted:  Emitted{},
 	}
 
+	symbolTable := symbols.New()
+	for i, v := range data.Builtins {
+		symbolTable.DefineBuiltin(i, v.Name)
+	}
+
 	return &Compiler{
 		constants:    []data.Data{},
-		symbols:      symbols.New(),
+		symbols:      symbolTable,
 		scopes:       []Scope{rootScope},
 		currentScope: 0,
 	}
@@ -251,12 +256,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok {
 			return fmt.Errorf("Variable %s is undefined", node.Value)
 		}
-
-		if symbol.Scope == symbols.GlobalScope {
-			c.emit(operation.GetGlobal, symbol.Index)
-		} else {
-			c.emit(operation.GetLocal, symbol.Index)
-		}
+		c.loadSymbol(symbol)
 
 	case *ast.BlockStatement:
 		for _, s := range node.Statements {
@@ -425,4 +425,16 @@ func (c *Compiler) leaveScope() operation.Instruction {
 	c.symbols = c.symbols.Outer
 
 	return instructions
+}
+
+// For a given symbol emits the corresponding operation depending on its scope
+func (c *Compiler) loadSymbol(s symbols.Symbol) {
+	switch s.Scope {
+	case symbols.GlobalScope:
+		c.emit(operation.GetGlobal, s.Index)
+	case symbols.LocalScope:
+		c.emit(operation.GetLocal, s.Index)
+	case symbols.BuiltinScope:
+		c.emit(operation.GetBuiltin, s.Index)
+	}
 }

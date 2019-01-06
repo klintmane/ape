@@ -52,6 +52,9 @@ var operations = map[Opcode]*Operation{
 	Call:        {"Call", []int{1}},       // Call the function on top of the stack (with the given argument count)
 	Return:      {"Return", []int{}},      // Return nothing, exit the function and return nil
 	ReturnValue: {"ReturnValue", []int{}}, // Returns the value on top of the stack
+
+	// Builtins
+	GetBuiltin: {"GetBuiltin", []int{1}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation
