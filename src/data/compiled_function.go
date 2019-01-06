@@ -8,7 +8,8 @@ import (
 
 type CompiledFunction struct {
 	Instructions operation.Instruction
-	LocalCount   int // count of the local variables (needed to allocate space for the function in the stack)
+	LocalCount   int // local variable definitions count (needed to allocate space for the function in the stack)
+	ParamCount   int // parameter count
 }
 
 func (cf *CompiledFunction) Type() DataType { return COMPILED_FUNCTION_TYPE }

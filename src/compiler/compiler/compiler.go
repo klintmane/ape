@@ -289,7 +289,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 		localCount := c.symbols.DefinitionCount
 		instructions := c.leaveScope()
 
-		compiled := &data.CompiledFunction{Instructions: instructions, LocalCount: localCount}
+		compiled := &data.CompiledFunction{
+			Instructions: instructions,
+			LocalCount:   localCount,
+			ParamCount:   len(node.Parameters),
+		}
 		c.emit(operation.Constant, c.addConstant(compiled))
 
 	case *ast.ReturnStatement:

@@ -196,14 +196,14 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.Call:
-			vm.frames.current().pointer++ // TODO: this is a hack for temporarily skipping the call
-			fn, ok := vm.stack.top().(*data.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("calling non-function")
+			// Get the number of arguments from the next instruction
+			argCount := operation.ReadUint8(instructions[pointer+1:])
+			vm.frames.current().pointer++
+
+			err := vm.callFn(int(argCount))
+			if err != nil {
+				return err
 			}
-			frame := NewFrame(fn, vm.stack.pointer)
-			vm.frames.push(frame)
-			vm.stack.pointer = frame.framePointer + fn.LocalCount
 
 		case operation.ReturnValue:
 			value := vm.stack.pop()
@@ -235,4 +235,23 @@ func isTruthy(d data.Data) bool {
 	default:
 		return true
 	}
+}
+
+func (vm *VM) callFn(argCount int) error {
+	// Get the function, by offseting the arguments
+	fn, ok := vm.stack.items[vm.stack.pointer-1-argCount].(*data.CompiledFunction)
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+
+	if argCount != fn.ParamCount {
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.ParamCount, argCount)
+	}
+
+	// Create a new frame for the function
+	frame := NewFrame(fn, vm.stack.pointer-argCount)
+	vm.frames.push(frame)
+	vm.stack.pointer = frame.framePointer + fn.LocalCount
+
+	return nil
 }
