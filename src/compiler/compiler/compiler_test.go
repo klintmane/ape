@@ -749,6 +749,129 @@ func TestBuiltins(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
+func TestClosures(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				fn(a) {
+					fn(b) {
+						a + b
+					}
+				}
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetFree, 0),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Closure, 0, 1),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Closure, 1, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				fn(a) {
+					fn(b) {
+						fn(c) {
+							a + b + c
+						}
+					}
+				};
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetFree, 0),
+					operation.NewInstruction(operation.GetFree, 1),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetFree, 0),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Closure, 0, 2),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Closure, 1, 1),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Closure, 2, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+
+		{
+			input: `
+			let global = 55;
+			fn() {
+				let a = 66;
+				fn() {
+					let b = 77;
+					fn() {
+						let c = 88;
+						global + a + b + c;
+					}
+				}
+			}
+			`,
+			expectedConstants: []interface{}{
+				55,
+				66,
+				77,
+				88,
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 3),
+					operation.NewInstruction(operation.SetLocal, 0),
+					operation.NewInstruction(operation.GetGlobal, 0),
+					operation.NewInstruction(operation.GetFree, 0),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.GetFree, 1),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Add),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 2),
+					operation.NewInstruction(operation.SetLocal, 0),
+					operation.NewInstruction(operation.GetFree, 0),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Closure, 4, 2),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Constant, 1),
+					operation.NewInstruction(operation.SetLocal, 0),
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Closure, 5, 1),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.Closure, 6, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
 // * HELPERS
 
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {

@@ -53,4 +53,5 @@ const (
 
 	// Closures
 	Closure
+	GetFree
 )

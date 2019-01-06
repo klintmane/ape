@@ -58,6 +58,7 @@ var operations = map[Opcode]*Operation{
 
 	// Closures
 	Closure: {"Closure", []int{2, 1}}, // The first operand references the function, the second the free variable count (max 1 byte)
+	GetFree: {"GetFree", []int{1}},
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation
