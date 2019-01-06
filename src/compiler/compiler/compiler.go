@@ -268,6 +268,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	case *ast.FunctionLiteral:
 		c.enterScope()
+		for _, p := range node.Parameters {
+			c.symbols.Define(p.Value)
+		}
 		err := c.Compile(node.Body)
 		if err != nil {
 			return err
@@ -301,7 +304,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
-		c.emit(operation.Call)
+		for _, a := range node.Arguments {
+			err := c.Compile(a)
+			if err != nil {
+				return err
+			}
+		}
+		c.emit(operation.Call, len(node.Arguments))
 
 	}
 

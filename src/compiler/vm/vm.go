@@ -8,9 +8,9 @@ import (
 	"github.com/ape-lang/ape/src/data"
 )
 
-const globalsLimit = 65536 // equal to the max value represented by uint16 (operation.Constant)
-const stackLimit = 2048
-const frameLimit = 1024
+const GlobalsLimit = 65536 // equal to the max value represented by uint16 (operation.Constant)
+const StackLimit = 2048
+const FrameLimit = 1024
 
 // Global references, so a new object does not get allocated for each evaluation
 var (
@@ -33,13 +33,13 @@ func New(bytecode *compiler.Bytecode) *VM {
 	mainFn := &data.CompiledFunction{Instructions: bytecode.Instructions}
 	mainFrame := NewFrame(mainFn, 0)
 
-	frames := NewFrames(frameLimit)
+	frames := NewFrames(FrameLimit)
 	frames.push(mainFrame)
 
 	return &VM{
 		constants: bytecode.Constants,
-		globals:   make([]data.Data, globalsLimit),
-		stack:     NewStack(stackLimit),
+		globals:   make([]data.Data, GlobalsLimit),
+		stack:     NewStack(StackLimit),
 		frames:    frames,
 	}
 }
@@ -196,6 +196,7 @@ func (vm *VM) Run() error {
 			}
 
 		case operation.Call:
+			vm.frames.current().pointer++ // TODO: this is a hack for temporarily skipping the call
 			fn, ok := vm.stack.top().(*data.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("calling non-function")

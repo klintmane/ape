@@ -542,7 +542,7 @@ func TestFunctionCalls(t *testing.T) {
 			},
 			expectedInstructions: []operation.Instruction{
 				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
-				operation.NewInstruction(operation.Call),
+				operation.NewInstruction(operation.Call, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -562,7 +562,101 @@ func TestFunctionCalls(t *testing.T) {
 				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
 				operation.NewInstruction(operation.SetGlobal, 0),
 				operation.NewInstruction(operation.GetGlobal, 0),
-				operation.NewInstruction(operation.Call),
+				operation.NewInstruction(operation.Call, 0),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				let oneArg = fn(a) { };
+				oneArg(24);
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Return),
+				},
+				24,
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Call, 1),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				let manyArg = fn(a, b, c) { };
+				manyArg(24, 25, 26);
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.Return),
+				},
+				24,
+				25,
+				26,
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Call, 3),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				let oneArg = fn(a) { a };
+				oneArg(24);
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				24,
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Call, 1),
+				operation.NewInstruction(operation.Pop),
+			},
+		},
+		{
+			input: `
+				let manyArg = fn(a, b, c) { a; b; c };
+				manyArg(24, 25, 26);
+			`,
+			expectedConstants: []interface{}{
+				[]operation.Instruction{
+					operation.NewInstruction(operation.GetLocal, 0),
+					operation.NewInstruction(operation.Pop),
+					operation.NewInstruction(operation.GetLocal, 1),
+					operation.NewInstruction(operation.Pop),
+					operation.NewInstruction(operation.GetLocal, 2),
+					operation.NewInstruction(operation.ReturnValue),
+				},
+				24,
+				25,
+				26,
+			},
+			expectedInstructions: []operation.Instruction{
+				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.SetGlobal, 0),
+				operation.NewInstruction(operation.GetGlobal, 0),
+				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Constant, 3),
+				operation.NewInstruction(operation.Call, 3),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -574,9 +668,9 @@ func TestLetStatementScopes(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			input: `
-	let num = 55;
-	fn() { num }
-	`,
+				let num = 55;
+				fn() { num }
+			`,
 			expectedConstants: []interface{}{
 				55,
 				[]operation.Instruction{
@@ -593,11 +687,11 @@ func TestLetStatementScopes(t *testing.T) {
 		},
 		{
 			input: `
-	fn() {
-	let num = 55;
-	num
-	}
-	`,
+				fn() {
+					let num = 55;
+					num
+				}
+			`,
 			expectedConstants: []interface{}{
 				55,
 				[]operation.Instruction{
@@ -614,12 +708,12 @@ func TestLetStatementScopes(t *testing.T) {
 		},
 		{
 			input: `
-		fn() {
-		let a = 55;
-		let b = 77;
-		a + b
-		}
-		`,
+				fn() {
+					let a = 55;
+					let b = 77;
+					a + b
+				}
+			`,
 			expectedConstants: []interface{}{
 				55,
 				77,

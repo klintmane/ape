@@ -49,7 +49,7 @@ var operations = map[Opcode]*Operation{
 	Index: {"Index", []int{}},  // Index operator
 
 	// Functions
-	Call:        {"Call", []int{}},        // Call the function on top of the stack
+	Call:        {"Call", []int{1}},       // Call the function on top of the stack (with the given argument count)
 	Return:      {"Return", []int{}},      // Return nothing, exit the function and return nil
 	ReturnValue: {"ReturnValue", []int{}}, // Returns the value on top of the stack
 }

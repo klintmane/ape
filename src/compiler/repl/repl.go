@@ -17,7 +17,7 @@ func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
 	constants := []data.Data{}
-	globals := make([]data.Data, vm.GLOBALS_SIZE)
+	globals := make([]data.Data, vm.GlobalsLimit)
 	symbols := symbols.New()
 
 	for {
