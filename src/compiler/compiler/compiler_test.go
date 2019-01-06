@@ -431,10 +431,27 @@ func TestFunctions(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Closure, 2, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
+		// {
+		// 	input: `fn() { 5 + 10 }`,
+		// 	expectedConstants: []interface{}{
+		// 		5,
+		// 		10,
+		// 		[]operation.Instruction{
+		// 			operation.NewInstruction(operation.Constant, 0),
+		// 			operation.NewInstruction(operation.Constant, 1),
+		// 			operation.NewInstruction(operation.Add),
+		// 			operation.NewInstruction(operation.ReturnValue),
+		// 		},
+		// 	},
+		// 	expectedInstructions: []operation.Instruction{
+		// 		operation.NewInstruction(operation.Closure, 2, 0),
+		// 		operation.NewInstruction(operation.Pop),
+		// 	},
+		// },
 		{
 			input: `fn() { 1; 2 }`,
 			expectedConstants: []interface{}{
@@ -448,7 +465,7 @@ func TestFunctions(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Closure, 2, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -466,7 +483,7 @@ func TestFunctionsWithoutReturnValue(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Closure, 0, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -541,16 +558,16 @@ func TestFunctionCalls(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
+				operation.NewInstruction(operation.Closure, 1, 0), // The function (compiled)
 				operation.NewInstruction(operation.Call, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
 		{
 			input: `
-	let noArg = fn() { 26 };
-	noArg();
-	`,
+				let noArg = fn() { 26 };
+				noArg();
+			`,
 			expectedConstants: []interface{}{
 				26,
 				[]operation.Instruction{
@@ -559,54 +576,10 @@ func TestFunctionCalls(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 1), // The function (compiled)
+				operation.NewInstruction(operation.Closure, 1, 0),
 				operation.NewInstruction(operation.SetGlobal, 0),
 				operation.NewInstruction(operation.GetGlobal, 0),
 				operation.NewInstruction(operation.Call, 0),
-				operation.NewInstruction(operation.Pop),
-			},
-		},
-		{
-			input: `
-				let oneArg = fn(a) { };
-				oneArg(24);
-			`,
-			expectedConstants: []interface{}{
-				[]operation.Instruction{
-					operation.NewInstruction(operation.Return),
-				},
-				24,
-			},
-			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
-				operation.NewInstruction(operation.SetGlobal, 0),
-				operation.NewInstruction(operation.GetGlobal, 0),
-				operation.NewInstruction(operation.Constant, 1),
-				operation.NewInstruction(operation.Call, 1),
-				operation.NewInstruction(operation.Pop),
-			},
-		},
-		{
-			input: `
-				let manyArg = fn(a, b, c) { };
-				manyArg(24, 25, 26);
-			`,
-			expectedConstants: []interface{}{
-				[]operation.Instruction{
-					operation.NewInstruction(operation.Return),
-				},
-				24,
-				25,
-				26,
-			},
-			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
-				operation.NewInstruction(operation.SetGlobal, 0),
-				operation.NewInstruction(operation.GetGlobal, 0),
-				operation.NewInstruction(operation.Constant, 1),
-				operation.NewInstruction(operation.Constant, 2),
-				operation.NewInstruction(operation.Constant, 3),
-				operation.NewInstruction(operation.Call, 3),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -623,7 +596,7 @@ func TestFunctionCalls(t *testing.T) {
 				24,
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Closure, 0, 0),
 				operation.NewInstruction(operation.SetGlobal, 0),
 				operation.NewInstruction(operation.GetGlobal, 0),
 				operation.NewInstruction(operation.Constant, 1),
@@ -650,7 +623,7 @@ func TestFunctionCalls(t *testing.T) {
 				26,
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Closure, 0, 0),
 				operation.NewInstruction(operation.SetGlobal, 0),
 				operation.NewInstruction(operation.GetGlobal, 0),
 				operation.NewInstruction(operation.Constant, 1),
@@ -681,7 +654,7 @@ func TestLetStatementScopes(t *testing.T) {
 			expectedInstructions: []operation.Instruction{
 				operation.NewInstruction(operation.Constant, 0),
 				operation.NewInstruction(operation.SetGlobal, 0),
-				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Closure, 1, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -702,7 +675,7 @@ func TestLetStatementScopes(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 1),
+				operation.NewInstruction(operation.Closure, 1, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -729,7 +702,7 @@ func TestLetStatementScopes(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 2),
+				operation.NewInstruction(operation.Closure, 2, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},
@@ -768,7 +741,7 @@ func TestBuiltins(t *testing.T) {
 				},
 			},
 			expectedInstructions: []operation.Instruction{
-				operation.NewInstruction(operation.Constant, 0),
+				operation.NewInstruction(operation.Closure, 0, 0),
 				operation.NewInstruction(operation.Pop),
 			},
 		},

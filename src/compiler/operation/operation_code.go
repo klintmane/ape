@@ -50,4 +50,7 @@ const (
 
 	// Builtins
 	GetBuiltin
+
+	// Closures
+	Closure
 )

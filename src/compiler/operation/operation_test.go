@@ -12,6 +12,7 @@ func TestNewInstruction(t *testing.T) {
 		{Constant, []int{65534}, []byte{byte(Constant), 255, 254}},
 		{Add, []int{}, []byte{byte(Add)}},
 		{GetLocal, []int{255}, []byte{byte(GetLocal), 255}},
+		{Closure, []int{65534, 255}, []byte{byte(Closure), 255, 254, 255}},
 	}
 
 	for _, test := range tests {
@@ -36,11 +37,13 @@ func TestInstructionString(t *testing.T) {
 		NewInstruction(GetLocal, 1),
 		NewInstruction(Constant, 2),
 		NewInstruction(Constant, 65535),
+		NewInstruction(Closure, 65535, 255),
 	}
 	expected := `0000 Add
 0001 GetLocal 1
 0003 Constant 2
 0006 Constant 65535
+0009 Closure 65535 255
 `
 
 	result := Instruction{}
@@ -63,6 +66,7 @@ func TestReadOperands(t *testing.T) {
 	}{
 		{Constant, []int{65535}, 2},
 		{GetLocal, []int{255}, 1},
+		{Closure, []int{65535, 255}, 3},
 	}
 
 	for _, tt := range tests {

@@ -7,7 +7,7 @@ import (
 
 // Frame consists of a reference to a compiled function, an instruction pointer and a pointer to the base frame
 type Frame struct {
-	fn           *data.CompiledFunction
+	closure      *data.Closure
 	pointer      int
 	framePointer int
 }
@@ -18,8 +18,8 @@ type Frames struct {
 }
 
 // NewFrame creates a new frame for a given function
-func NewFrame(fn *data.CompiledFunction, framePointer int) *Frame {
-	return &Frame{fn: fn, pointer: -1, framePointer: framePointer}
+func NewFrame(cl *data.Closure, framePointer int) *Frame {
+	return &Frame{closure: cl, pointer: -1, framePointer: framePointer}
 }
 
 // NewFrames creates a collection of Frames
@@ -32,7 +32,7 @@ func NewFrames(max int) *Frames {
 
 // Instructions returns the instructions of the function referenced byt the frame
 func (f *Frame) Instructions() operation.Instruction {
-	return f.fn.Instructions
+	return f.closure.Fn.Instructions
 }
 
 // current frame in a frame collection

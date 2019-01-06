@@ -24,7 +24,8 @@ type VM struct {
 func New(bytecode *compiler.Bytecode) *VM {
 	// create an execution frame for the main function
 	mainFn := &data.CompiledFunction{Instructions: bytecode.Instructions}
-	mainFrame := NewFrame(mainFn, 0)
+	mainClosure := &data.Closure{Fn: mainFn}
+	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := NewFrames(FrameLimit)
 	frames.push(mainFrame)
@@ -223,6 +224,16 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case operation.Closure:
+			constIndex := operation.ReadUint16(instructions[pointer+1:])
+			_ = operation.ReadUint8(instructions[pointer+3:])
+			vm.frames.current().pointer += 3
+
+			err := vm.pushClosure(int(constIndex))
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -243,25 +254,25 @@ func (vm *VM) executeCall(argCount int) error {
 	callee := vm.stack.items[vm.stack.pointer-1-argCount]
 
 	switch callee := callee.(type) {
-	case *data.CompiledFunction:
-		return vm.callFn(callee, argCount)
+	case *data.Closure:
+		return vm.callClosure(callee, argCount)
 
 	case *data.Builtin:
 		return vm.callBuiltin(callee, argCount)
 
 	default:
-		return fmt.Errorf("calling non-function and non-built-in")
+		return fmt.Errorf("calling non-closure and non-built-in")
 	}
 }
 
-func (vm *VM) callFn(fn *data.CompiledFunction, argCount int) error {
-	if argCount != fn.ParamCount {
-		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.ParamCount, argCount)
+func (vm *VM) callClosure(cl *data.Closure, argCount int) error {
+	if argCount != cl.Fn.ParamCount {
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", cl.Fn.ParamCount, argCount)
 	}
 
-	frame := NewFrame(fn, vm.stack.pointer-argCount)
+	frame := NewFrame(cl, vm.stack.pointer-argCount)
 	vm.frames.push(frame)
-	vm.stack.pointer = frame.framePointer + fn.LocalCount
+	vm.stack.pointer = frame.framePointer + cl.Fn.LocalCount
 	return nil
 }
 
@@ -276,4 +287,14 @@ func (vm *VM) callBuiltin(builtin *data.Builtin, argCount int) error {
 		vm.stack.push(data.NULL)
 	}
 	return nil
+}
+
+func (vm *VM) pushClosure(constIndex int) error {
+	constant := vm.constants[constIndex]
+	function, ok := constant.(*data.CompiledFunction)
+	if !ok {
+		return fmt.Errorf("not a function: %+v", constant)
+	}
+	closure := &data.Closure{Fn: function}
+	return vm.stack.push(closure)
 }

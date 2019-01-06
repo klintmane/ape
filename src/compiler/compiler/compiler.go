@@ -294,7 +294,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			LocalCount:   localCount,
 			ParamCount:   len(node.Parameters),
 		}
-		c.emit(operation.Constant, c.addConstant(compiled))
+
+		fnIndex := c.addConstant(compiled)
+		c.emit(operation.Closure, fnIndex, 0)
 
 	case *ast.ReturnStatement:
 		err := c.Compile(node.ReturnValue)

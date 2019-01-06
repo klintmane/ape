@@ -54,7 +54,10 @@ var operations = map[Opcode]*Operation{
 	ReturnValue: {"ReturnValue", []int{}}, // Returns the value on top of the stack
 
 	// Builtins
-	GetBuiltin: {"GetBuiltin", []int{1}},
+	GetBuiltin: {"GetBuiltin", []int{1}}, // Get a Builtin definition
+
+	// Closures
+	Closure: {"Closure", []int{2, 1}}, // The first operand references the function, the second the free variable count (max 1 byte)
 }
 
 // Lookup looks up a given Opcode and returns the corresponding Operation

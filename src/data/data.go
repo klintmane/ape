@@ -14,6 +14,7 @@ const (
 	ARRAY_TYPE             = "ARRAY"
 	HASH_TYPE              = "HASH"
 	COMPILED_FUNCTION_TYPE = "COMPILED_TYPE"
+	CLOSURE_TYPE           = "CLOSURE_TYPE"
 )
 
 // Global references, so a new object does not get allocated for each evaluation
